@@ -1,0 +1,119 @@
+:root {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #172c29;
+    background: #f2f5f1;
+    color-scheme: light;
+}
+
+body {
+    margin: 0;
+}
+
+/* Center only the login page, leaving other views free to use their own layout. */
+#app:has(#login-view) {
+    box-sizing: border-box;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    padding: 32px 20px;
+    background: radial-gradient(ellipse at top left, #dce9df, transparent 65%);
+}
+
+#login-view,
+#login-view * {
+    box-sizing: border-box;
+}
+
+#login-view {
+    width: 100%;
+    max-width: 420px;
+    padding: 40px;
+    background: #fff;
+    border: 1px solid #dce4dc;
+    border-top: 4px solid #28644f;
+    border-radius: 16px;
+    box-shadow: 0 16px 48px #172c290d;
+}
+
+#login-view h1 {
+    margin: 0 0 32px;
+    color: #28644f;
+    font-size: 0.8rem;
+    font-weight: 750;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+#login-view h2 {
+    margin: 0 0 28px;
+    font-size: 2rem;
+    line-height: 1.2;
+    letter-spacing: -0.04em;
+}
+
+#login-form {
+    display: grid;
+    gap: 20px;
+}
+
+#login-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+#login-form input {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    border: 1px solid #a4b4ac;
+    border-radius: 8px;
+    background: #fcfdfb;
+    color: #172c29;
+    font: inherit;
+}
+
+#login-form input:focus-visible,
+#login-button:focus-visible {
+    outline: 3px solid #28644f;
+    outline-offset: 3px;
+}
+
+#login-button {
+    min-height: 48px;
+    margin-top: 4px;
+    padding: 12px 20px;
+    border: 0;
+    border-radius: 8px;
+    background: #28644f;
+    color: #fff;
+    font: inherit;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+#login-button:hover:not(:disabled) {
+    background: #1b4b3a;
+}
+
+#login-button:disabled {
+    background: #52695f;
+    cursor: wait;
+}
+
+#login-message {
+    min-height: 1.5em;
+    margin: 20px 0 0;
+    color: #4b5e55;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 480px) {
+    #login-view {
+        padding: 28px 24px;
+    }
+}
