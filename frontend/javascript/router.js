@@ -4,6 +4,8 @@ import { createDashboardView } from "./views/dashboardView.js";
 const routes = [
     { path: "/", view: showLogin, title: "Login" },
     { path: "/login", view: showLogin, title: "Login" },
+
+    // DETTE ER EN PLACEHOLDER FIL BARE ET ENDPOINT EFTER LOGIN
     { path: "/dashboard", view: createDashboardView, title: "Dashboard" }
 ];
 

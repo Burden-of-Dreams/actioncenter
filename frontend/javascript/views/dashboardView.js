@@ -1,4 +1,8 @@
 export function createDashboardView() {
+
+
+    // DETTE ER EN PLACEHOLDER FIL BARE ET ENDPOINT EFTER LOGIN
+
     const section = document.createElement("section");
     section.id = "dashboard-view";
 
