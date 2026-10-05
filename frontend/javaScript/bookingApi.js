@@ -3,13 +3,14 @@
 
 const API_BASE = "/api";
 
+//TODO Skriv Export foran alle functions ift. at bruge dem i andre JS filer?
 
 async function fetchBookings() {
-    const response = await fetch(API_BASE + "api/bookings/bookings/");
+    const response = await fetch(API_BASE + "api/bookings/");
     if (!response.ok) {
         throw new Error("HTTP " + response.status);
     }
-    await response.json()
+    await response.json();
 }
 
 async function loadBookings() {
@@ -22,4 +23,17 @@ async function loadBookings() {
         console.error(error);
         statusMessage.textContent = "Could not load Bookings";
     }
+}
+
+async function createBooking(booking) {
+    const response = await fetch(API_BASE + "/bookings",
+        {
+            method: POST,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(booking)
+        });
+    if (!response.ok()) {
+        throw new Error("HTTP " + response.status);
+        }
+    return await response.json();
 }
