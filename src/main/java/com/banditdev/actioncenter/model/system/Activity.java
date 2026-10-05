@@ -1,6 +1,6 @@
 package com.banditdev.actioncenter.model.system;
 
-import com.banditdev.actioncenter.model.user.Employee;
+import com.banditdev.actioncenter.model.user.User;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ public class Activity {
     private String description;
 
     @OneToMany  //skal måske ændress til en manyToMany hvis hver employee kan lave flere forskellige aktiviteter.
-    private List<Employee> employees = new ArrayList<>();
+    private List<User> employees = new ArrayList<>();
 
     private int ageLimit;
     private int capacity;
@@ -30,7 +30,7 @@ public class Activity {
     private double pricePerActivity;
     private double pricePerPerson;
 
-    public Activity(String name, String description, List<Employee> employees,
+    public Activity(String name, String description, List<User> employees,
                     int ageLimit, int capacity, int durationMinutes, List<Equipment> equipment,
                     double pricePerActivity, double pricePerPerson) {
 
@@ -53,11 +53,11 @@ public class Activity {
         return id;
     }
 
-    public List<Employee> getEmployees() {
+    public List<User> getEmployees() {
         return employees;
     }
 
-    public void setEmployees(List<Employee> employees) {
+    public void setEmployees(List<User> employees) {
         this.employees = employees;
     }
 
