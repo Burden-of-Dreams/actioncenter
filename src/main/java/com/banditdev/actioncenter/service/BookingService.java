@@ -16,6 +16,7 @@ public class BookingService {
         this.bookingRepository = bookingRepository;
     }
 
+
     public Booking createBooking(Booking booking) {
         return bookingRepository.save(booking);
     }
@@ -25,11 +26,15 @@ public class BookingService {
     }
 
     public Booking getBookingById(Long id) {
-        Optional<Booking> bookingOptional =bookingRepository.findById(id);
+        Optional<Booking> bookingOptional = bookingRepository.findById(id);
         if (bookingOptional.isEmpty()) {
             throw new RuntimeException("Booking not found. Id: " + id);
         }
         return bookingOptional.get();
+    }
+
+    public void deleteBookingById(Long id) {
+        bookingRepository.deleteById(id);
     }
 
 }
