@@ -23,6 +23,13 @@ public class UserService {
         return UserResponse.from(savedUser);
     }
 
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(UserResponse::from)
+                .toList();
+    }
+
     public User findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
