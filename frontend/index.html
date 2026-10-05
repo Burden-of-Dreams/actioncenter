@@ -4,37 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Actioncenter</title>
-    <script src="javascript/login.js" defer></script>
 </head>
 <body>
-<main>
-    <section id="login-view">
-        <h1>Action Center</h1>
-        <h2>Login</h2>
-
-        <form id="login-form">
-            <div>
-                <label for="username">Brugernavn</label>
-                <input id="username" name="username"
-                       autocomplete="username" required>
-            </div>
-
-            <div>
-                <label for="password">Kodeord</label>
-                <input id="password" name="password" type="password"
-                       autocomplete="current-password" required>
-            </div>
-
-            <button id="login-button" type="submit">Login</button>
-        </form>
-
-        <p id="login-message" role="status" aria-live="polite"></p>
-    </section>
-
-    <section id="dashboard-view" hidden>
-        <h1>Dashboard</h1>
-        <p>You are logged into the Actioncenter.</p>
-    </section>
-</main>
+    <main id="app"></main>
+    <script type="module" src="javascript/main.js"></script>
 </body>
 </html>
