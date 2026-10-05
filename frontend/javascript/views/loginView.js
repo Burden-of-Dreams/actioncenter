@@ -1,40 +1,55 @@
 export function createLoginView({ onLogin }) {
+    const container = document.createElement("section");
+    container.id = "login-view";
 
-    const section = document.createElement("section");
-    section.id = "login-view";
-    const heading = document.createElement("h1");
-    heading.textContent = "Action Center";
-    const subheading = document.createElement("h2");
-    subheading.textContent = "Login";
-    const form = document.createElement("form");
-    form.id = "login-form";
-    const username = createField("username", "Brugernavn", "text", "username");
-    const password = createField("password", "Kodeord", "password", "current-password");
-    const button = document.createElement("button");
-    button.id = "login-button";
-    button.type = "submit";
-    button.textContent = "Login";
-    form.append(username.container, password.container, button);
-    const message = document.createElement("p");
-    message.id = "login-message";
-    message.setAttribute("role", "status");
-    message.setAttribute("aria-live", "polite");
+    container.innerHTML = `
+        <h1>Action Center</h1>
+        <h2>Login</h2>
+
+        <form id="login-form">
+            <div>
+                <label for="username">Brugernavn</label>
+                <input id="username" name="username"
+                       type="text" autocomplete="username" required>
+            </div>
+
+            <div>
+                <label for="password">Kodeord</label>
+                <input id="password" name="password"
+                       type="password" autocomplete="current-password" required>
+            </div>
+
+            <button id="login-button" type="submit">Login</button>
+        </form>
+
+        <p id="login-message" role="status" aria-live="polite"></p>
+    `;
+
+    const form = container.querySelector("form");
+    const button = container.querySelector("button");
+    const message = container.querySelector("#login-message");
 
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
-        if (button.disabled) return;
+
+        if (button.disabled) {
+            return;
+        }
+
         button.disabled = true;
         message.textContent = "Logging in...";
+
         try {
             const response = await fetch("/api/user/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "same-origin",
                 body: JSON.stringify({
-                    username: username.input.value,
-                    password: password.input.value
+                    username: form.elements.username.value,
+                    password: form.elements.password.value
                 })
             });
+
             if (response.status === 204) {
                 form.reset();
                 message.textContent = "";
@@ -50,21 +65,6 @@ export function createLoginView({ onLogin }) {
             button.disabled = false;
         }
     });
-    section.append(heading, subheading, form, message);
-    return section;
-}
 
-function createField(name, labelText, type, autocomplete) {
-    const container = document.createElement("div");
-    const label = document.createElement("label");
-    label.htmlFor = name;
-    label.textContent = labelText;
-    const input = document.createElement("input");
-    input.id = name;
-    input.name = name;
-    input.type = type;
-    input.autocomplete = autocomplete;
-    input.required = true;
-    container.append(label, input);
-    return { container, input };
+    return container;
 }
