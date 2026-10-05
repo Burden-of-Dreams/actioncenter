@@ -1,8 +1,12 @@
 package com.banditdev.actioncenter.service;
 
 import com.banditdev.actioncenter.model.user.User;
+import com.banditdev.actioncenter.model.user.dto.UserRequest;
+import com.banditdev.actioncenter.model.user.dto.UserResponse;
 import com.banditdev.actioncenter.repository.UserRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserService {
@@ -11,6 +15,12 @@ public class UserService {
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    public UserResponse createUser(UserRequest request) {
+        User user = new User(request.username(), request.password(), request.role());
+        User savedUser = userRepository.save(user);
+        return UserResponse.from(savedUser);
     }
 
     public User findByUsername(String username) {
