@@ -13,7 +13,7 @@ export function createDashboardView() {
         <input
         id="booking-search"
         type="search"
-        placeholder= "Søg efter navn, email eller telefon..."
+        placeholder= "Søg efter id, navn, mail eller telefon..."
         aria-label="Search bookings"
         >
         
@@ -22,6 +22,7 @@ export function createDashboardView() {
         <table hidden>
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Kundenavn</th>
                     <th>Dato</th>
                     <th>Email</th>
@@ -43,11 +44,12 @@ export function createDashboardView() {
         const search = searchInput.value.trim().toLowerCase();
 
         for (const row of tableBody.rows) {
-            const name = row.cells[0].textContent;
-            const email = row.cells[2].textContent;
-            const phone = row.cells[3].textContent;
+            const id = row.cells[0].textContent;
+            const name = row.cells[1].textContent;
+            const email = row.cells[3].textContent;
+            const phone = row.cells[4].textContent;
 
-            const bookingText = `${name} ${email} ${phone}`.toLowerCase();
+            const bookingText = `${id} ${name} ${email} ${phone}`.toLowerCase();
 
             row.hidden = !bookingText.includes(search);
         }
@@ -69,6 +71,7 @@ export function createDashboardView() {
                 const row = document.createElement("tr");
 
                 const values = [
+                    booking.id,
                     booking.nameOfCustomer,
                     booking.date,
                     booking.emailOfCustomer,
