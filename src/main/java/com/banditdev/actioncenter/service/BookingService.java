@@ -2,6 +2,7 @@ package com.banditdev.actioncenter.service;
 
 
 import com.banditdev.actioncenter.model.system.Booking;
+import com.banditdev.actioncenter.model.system.Session;
 import com.banditdev.actioncenter.model.system.dto.BookingRequest;
 import com.banditdev.actioncenter.model.system.dto.BookingResponse;
 import com.banditdev.actioncenter.repository.BookingRepository;
@@ -14,7 +15,7 @@ import java.util.Optional;
 @Service
 public class BookingService {
     private final BookingRepository bookingRepository;
-    private BookingService(BookingRepository bookingRepository) {
+    public BookingService(BookingRepository bookingRepository) {
         this.bookingRepository = bookingRepository;
     }
 
@@ -28,7 +29,13 @@ public class BookingService {
         booking.setNameOfCustomer(bookingRequest.nameOfCustomer());
         booking.setPhoneNumber(bookingRequest.phoneNumber());
         booking.setEmailOfCustomer(bookingRequest.emailOfCustomer());
+
+        List<Session> sessions = bookingRequest.sessions();
+        if (sessions != null) {
+            sessions.forEach(session -> session.setBooking(booking));
+        }
         booking.setSessions(bookingRequest.sessions());
+
         booking.setDate(bookingRequest.date());
         booking.setTotalPrice(bookingRequest.totalPrice());
 

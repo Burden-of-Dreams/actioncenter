@@ -15,7 +15,7 @@ public class Session {
     private Long id;
 
     @ManyToOne
-    private Activity typeOfActivity;
+    private Activity activity;
 
     private int amountOfCustomers;
 
@@ -30,11 +30,11 @@ public class Session {
     private Booking booking;
 
 
-    public Session(Activity typeOfActivity, int amountOfCustomers, List<Equipment> reservedEquipment,
+    public Session(Activity activity, int amountOfCustomers, List<Equipment> reservedEquipment,
                    LocalDate dateOfActivity, LocalTime startOfSession,
                    LocalTime endOfSession, Booking booking) {
 
-        this.typeOfActivity = typeOfActivity;
+        this.activity = activity;
         this.amountOfCustomers = amountOfCustomers;
         this.reservedEquipment = reservedEquipment;
         this.dateOfActivity = dateOfActivity;
@@ -50,12 +50,16 @@ public class Session {
         return id;
     }
 
-    public Activity getTypeOfActivity() {
-        return typeOfActivity;
+    public Activity getActivity() {
+        return activity;
     }
 
-    public void setTypeOfActivity(Activity typeOfActivity) {
-        this.typeOfActivity = typeOfActivity;
+    public void setActivity(Activity typeOfActivity) {
+        this.activity = typeOfActivity;
+    }
+
+    public Long getActivityId() {
+        return activity.getId();
     }
 
     public int getAmountOfCustomers() {
@@ -72,6 +76,16 @@ public class Session {
 
     public void setReservedEquipment(List<Equipment> reservedEquipment) {
         this.reservedEquipment = reservedEquipment;
+    }
+
+    public List<Long> getReservedEquipmentIds() {
+        List<Long> ids = new ArrayList<>();
+
+        for (Equipment equipment : reservedEquipment) {
+            ids.add(equipment.getId());
+        }
+
+        return ids;
     }
 
     public LocalDate getDateOfActivity() {
