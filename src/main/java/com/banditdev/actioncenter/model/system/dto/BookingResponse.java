@@ -11,8 +11,8 @@ public record BookingResponse(Long id, String nameOfCustomer,
                               List<Session> sessions, LocalDate date, double totalPrice) {
 
 
-public static BookingResponse from (Booking booking) {
-    return new BookingResponse(booking.getId(), booking.getNameOfCustomer(), booking.getPhoneNumber(),
-            booking.getEmailOfCustomer(), booking.getSessions(), booking.getDate(), booking.getTotalPrice());
-}
+    public static BookingResponse from(Booking booking) {
+        return new BookingResponse(booking.getId(), booking.getNameOfCustomer(), booking.getPhoneNumber(),
+                booking.getEmailOfCustomer(), booking.getSessions(), booking.getDate(), booking.getTotalPrice());
+    }
 }
