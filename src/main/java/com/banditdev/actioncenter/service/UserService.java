@@ -20,6 +20,9 @@ public class UserService {
     }
 
     public UserResponse createUser(UserRequest request) {
+        if (userRepository.existsByUsername(request.username())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists!");
+        }
         User user = new User(request.username(), request.password(), request.role());
         User savedUser = userRepository.save(user);
         return UserResponse.from(savedUser);
