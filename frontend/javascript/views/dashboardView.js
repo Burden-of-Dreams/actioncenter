@@ -1,4 +1,7 @@
-import { fetchBookings } from "../bookingApi";
+"use strict";
+
+import { fetchBookings } from "../../javaScript/bookingApi.js";
+
 
 export function createDashboardView() {
     const section = document.createElement("section");
@@ -11,9 +14,9 @@ export function createDashboardView() {
         <table hidden>
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Customer</th>
                     <th>Date</th>
+                    <th>Email</th>
                     <th>Phone</th>
                     <th>Total price</th>
                 </tr>
@@ -30,6 +33,8 @@ export function createDashboardView() {
         try {
             const bookings = await fetchBookings();
 
+            bookings.sort((a, b) => a.date.localeCompare(b.date));
+
             if (bookings.length === 0) {
                 status.textContent = "No bookings yet.";
                 return;
@@ -39,9 +44,9 @@ export function createDashboardView() {
                 const row = document.createElement("tr");
 
                 const values = [
-                    booking.id,
                     booking.nameOfCustomer,
                     booking.date,
+                    booking.emailOfCustomer,
                     booking.phoneNumber,
                     booking.totalPrice
                 ];
