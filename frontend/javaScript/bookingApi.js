@@ -6,7 +6,7 @@ const API_BASE = "/api";
 //TODO Skriv Export foran alle functions ift. at bruge dem i andre JS filer?
 
 async function fetchBookings() {
-    const response = await fetch(API_BASE + "api/bookings/");
+    const response = await fetch(API_BASE + "/bookings");
     if (!response.ok) {
         throw new Error("HTTP " + response.status);
     }
