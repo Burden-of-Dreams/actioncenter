@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface SessionRepository extends JpaRepository<Session, Long> {
 
-    List<Session> findByTypeOfActivityEmployeesId(Long employeeID);
+    List<Session> findByActivityEmployeesId(Long employeeID);
 }
