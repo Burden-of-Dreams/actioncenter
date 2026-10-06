@@ -19,12 +19,12 @@ public class SessionService {
     public List<EmployeeSessionDTO> getSessionsForEmployee(Long employeeId) {
 
         List<Session> sessions =
-                sessionRepository.findByTypeOfActivityEmployeesId(employeeId);
+                sessionRepository.findByActivityEmployeesId(employeeId);
 
         return sessions.stream()
                 .map(session -> new EmployeeSessionDTO(
                         session.getId(),
-                        session.getTypeOfActivity().getName(),
+                        session.getActivity().getName(),
                         session.getDateOfActivity(),
                         session.getStartOfSession(),
                         session.getEndOfSession()
