@@ -24,7 +24,7 @@ export function createLoginView({ onLogin }) {
             <button id="login-button" type="submit">Login</button>
         </form>
 
-        <p id="login-message" role="status" aria-live="polite"></p>
+        <p id="login-message"></p>
     `;
 
     const form = container.querySelector("form");
