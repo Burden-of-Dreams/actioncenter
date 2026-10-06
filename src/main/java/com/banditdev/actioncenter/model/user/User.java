@@ -4,12 +4,13 @@ package com.banditdev.actioncenter.model.user;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "users")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    //TODO – evt. lave et 'name' field med getter
 
     @Column(unique = true, nullable = false)
     private String username;
