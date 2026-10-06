@@ -11,18 +11,18 @@ const routes = [
 
 function showLogin() {
     return createLoginView({
-        onLogin: () => navigate("/dashboard")
+        onLogin: () => navigateTo("/dashboard")
     });
 }
 
-export function navigate(path) {
+export function navigateTo(path) {
     if (path !== window.location.pathname) {
         window.history.pushState(null, "", path);
     }
     render();
 }
 
-export function initRouter() {
+export function startRouter() {
     window.addEventListener("popstate", render);
     render();
 }

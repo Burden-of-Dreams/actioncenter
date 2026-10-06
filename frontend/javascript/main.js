@@ -1,5 +1,5 @@
 "use strict";
 
-import { initRouter } from "./router.js";
+import { startRouter } from "./router.js";
 
-initRouter();
+startRouter();
