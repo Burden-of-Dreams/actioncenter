@@ -9,7 +9,6 @@ body {
     margin: 0;
 }
 
-/* Center only the login page, leaving other views free to use their own layout. */
 #app:has(#login-view) {
     box-sizing: border-box;
     min-height: 100vh;

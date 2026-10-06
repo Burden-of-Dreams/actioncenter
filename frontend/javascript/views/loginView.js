@@ -1,3 +1,5 @@
+"use strict";
+
 export function createLoginView({ onLogin }) {
     const container = document.createElement("section");
     container.id = "login-view";
