@@ -16,7 +16,7 @@ public class Activity {
     private String name;
     private String description;
 
-    @OneToMany  //skal måske ændress til en manyToMany hvis hver employee kan lave flere forskellige aktiviteter.
+    @ManyToMany
     private List<User> employees = new ArrayList<>();
 
     private int ageLimit;
