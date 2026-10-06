@@ -31,10 +31,9 @@ function render() {
     const app = document.getElementById("app");
     const route = routes.find(route => route.path === window.location.pathname);
 
-    //TODO: route til login page?
     if (!route) {
-        app.textContent = "Page not found.";
-        document.title = "Actioncenter – Not found";
+        window.history.replaceState(null, "", "/login");
+        render();
         return;
     }
 

@@ -48,7 +48,7 @@ export function createDashboardView() {
                     booking.date,
                     booking.emailOfCustomer,
                     booking.phoneNumber,
-                    booking.totalPrice
+                    booking.totalPrice + " kr."
                 ];
 
                 for (const value of values) {
