@@ -2,6 +2,8 @@ package com.banditdev.actioncenter.controller;
 
 import com.banditdev.actioncenter.model.user.User;
 import com.banditdev.actioncenter.model.user.dto.LoginRequest;
+import com.banditdev.actioncenter.model.user.dto.UserRequest;
+import com.banditdev.actioncenter.model.user.dto.UserResponse;
 import com.banditdev.actioncenter.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -22,6 +24,11 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PostMapping
+    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest userRequest) {
+        UserResponse createdUser = userService.createUser(userRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+    }
 
     @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
