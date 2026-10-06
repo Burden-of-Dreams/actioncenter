@@ -38,4 +38,10 @@ public class BookingController {
         BookingResponse createdBooking = bookingService.createBooking(bookingRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBooking);
     }
+
+    @DeleteMapping("/delete/{bookingId}")
+    public ResponseEntity<Void> deleteBooking(@PathVariable Long bookingId) {
+        bookingService.deleteBookingById(bookingId);
+        return ResponseEntity.noContent().build();
+    }
 }

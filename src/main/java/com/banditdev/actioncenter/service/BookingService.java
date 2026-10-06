@@ -6,7 +6,10 @@ import com.banditdev.actioncenter.model.system.Session;
 import com.banditdev.actioncenter.model.system.dto.BookingRequest;
 import com.banditdev.actioncenter.model.system.dto.BookingResponse;
 import com.banditdev.actioncenter.repository.BookingRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,9 +75,11 @@ public class BookingService {
         return bookingOptional.get();
     }
 
+    @Transactional
     public void deleteBookingById(Long id) {
-        //TODO måske lav "Transactional" og evt. skal den også slette sessions under selve bookingen?
+        if (bookingRepository.findById(id).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
         bookingRepository.deleteById(id);
     }
-
 }
