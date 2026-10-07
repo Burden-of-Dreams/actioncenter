@@ -11,6 +11,7 @@ import com.banditdev.actioncenter.repository.ActivityRepository;
 import com.banditdev.actioncenter.repository.BookingRepository;
 import com.banditdev.actioncenter.repository.EquipmentRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,11 +25,13 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final ActivityRepository activityRepository;
     private final EquipmentRepository equipmentRepository;
+    private final SessionService sessionService;
     public BookingService(BookingRepository bookingRepository, ActivityRepository activityRepository,
-                          EquipmentRepository equipmentRepository) {
+                          EquipmentRepository equipmentRepository, SessionService sessionService) {
         this.bookingRepository = bookingRepository;
         this.activityRepository = activityRepository;
         this.equipmentRepository = equipmentRepository;
+        this.sessionService = sessionService;
     }
 
 
@@ -46,20 +49,26 @@ public class BookingService {
         booking.setPhoneNumber(bookingRequest.phoneNumber());
         booking.setEmailOfCustomer(bookingRequest.emailOfCustomer());
 
+        double totalPrice = 0;
 
-        booking.setDate(booking.getSessions().get(0).getDateOfActivity());
+        for (SessionDTO sessionDTO : bookingRequest.sessions()) {
+            Session session = sessionService.createSession(sessionDTO, booking);
+            booking.getSessions().add(session);
+
+            totalPrice += session.getActivity().getPricePerActivity()
+                    + session.getActivity().getPricePerPerson() * session.getAmountOfCustomers();
+        }
+
+        booking.setDate(booking.getSessions().getFirst().getDateOfActivity());
         booking.setTotalPrice(totalPrice);
 
         Booking saved = bookingRepository.save(booking);
         return BookingResponse.from(saved);
     }
 
+
     public Booking createBooking(Booking booking) {
         return bookingRepository.save(booking);
-    }
-
-    public List<Booking> getBookings() {
-        return bookingRepository.findAll();
     }
 
     public List<BookingResponse> getAllBookings() {
@@ -73,12 +82,11 @@ public class BookingService {
         return bookings;
     }
 
-    public Booking getBookingById(Long id) {
-        Optional<Booking> bookingOptional = bookingRepository.findById(id);
-        if (bookingOptional.isEmpty()) {
-            throw new RuntimeException("Booking not found. Id: " + id);
-        }
-        return bookingOptional.get();
+    @Transactional
+    public BookingResponse getBookingById(Long id) {
+        Booking booking = bookingRepository.findById(id).orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "Booking not found... BookingId: " + id));
+        return BookingResponse.from(booking);
     }
 
     @Transactional
