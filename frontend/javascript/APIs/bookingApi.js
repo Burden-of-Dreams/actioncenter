@@ -10,15 +10,17 @@ export async function fetchBookings() {
     return response.json();
 }
 
-async function createBooking(booking) {
+export async function createBooking(booking) {
     const response = await fetch(API_BASE + "/bookings",
         {
-            method: POST,
+            method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(booking)
         });
-    if (!response.ok()) {
-        throw new Error("HTTP " + response.status);
+    if (!response.ok) {
+        const error = new Error("HTTP " + response.status);
+        error.status = response.status;
+        throw error;
         }
     return await response.json();
 }

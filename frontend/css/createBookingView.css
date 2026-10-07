@@ -1,0 +1,164 @@
+#create-booking-view {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 24px;
+    font-family: Arial, sans-serif;
+    color: #243247;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+#create-booking-view,
+#create-booking-view * {
+    box-sizing: border-box;
+}
+
+#create-booking-view h1 {
+    margin: 0 0 24px;
+    font-size: 28px;
+}
+
+#create-booking-view h2 {
+    margin: 24px 0 12px;
+    font-size: 18px;
+}
+
+#create-booking-view #booking-form-status {
+    color: #64748b;
+}
+
+#create-booking-view #booking-form-status:empty {
+    display: none;
+}
+
+#create-booking-view .form-field {
+    margin-bottom: 16px;
+}
+
+#create-booking-view label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#create-booking-view input:not([type="checkbox"]),
+#create-booking-view select {
+    display: block;
+    width: 100%;
+    margin-top: 6px;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 16px;
+    background: #ffffff;
+}
+
+#create-booking-view input:focus-visible,
+#create-booking-view select:focus-visible,
+#create-booking-view button:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 2px;
+}
+
+#create-booking-view input[readonly] {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+#create-booking-view .session {
+    margin: 0 0 16px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f8fafc;
+}
+
+#create-booking-view .session-title {
+    padding: 0 8px;
+    font-weight: 600;
+}
+
+#create-booking-view .session-info {
+    display: block;
+    margin-top: 6px;
+    color: #64748b;
+}
+
+#create-booking-view .session-equipment label {
+    margin-top: 6px;
+    font-weight: 400;
+}
+
+#create-booking-view .session-equipment input {
+    margin-right: 6px;
+}
+
+#create-booking-view small {
+    color: #64748b;
+}
+
+#create-booking-view button {
+    padding: 10px 18px;
+    border: 1px solid #2563eb;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #2563eb;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#create-booking-view button:hover:not(:disabled) {
+    background: #eff6ff;
+}
+
+#create-booking-view #save-booking-button {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+#create-booking-view #save-booking-button:hover:not(:disabled) {
+    background: #1d4ed8;
+}
+
+#create-booking-view button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+#create-booking-view .remove-session-button {
+    border-color: #dc2626;
+    color: #dc2626;
+}
+
+#create-booking-view .remove-session-button:hover:not(:disabled) {
+    background: #fef2f2;
+}
+
+#create-booking-view .form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+#create-booking-view #booking-message {
+    min-height: 1.5em;
+    margin: 16px 0 0;
+    color: #4b5e55;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+    #create-booking-view {
+        margin: 16px;
+        padding: 16px;
+    }
+
+    #create-booking-view h1 {
+        font-size: 24px;
+    }
+}
