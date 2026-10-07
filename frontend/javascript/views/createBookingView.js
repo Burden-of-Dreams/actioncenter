@@ -1,7 +1,7 @@
 "use strict";
 
 import { createBooking } from "../APIs/bookingApi.js";
-import { fetchActivities } from "../APIs/activityApi";
+import { fetchActivities } from "../APIs/activityApi.js";
 import { fetchEquipment } from "../APIs/equipmentApi.js";
 
 import {createSessionForm} from "../util/sessionTool.js";
