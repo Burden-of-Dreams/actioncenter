@@ -8,17 +8,26 @@ export function createDashboardView() {
     section.id = "dashboard-view";
 
     section.innerHTML = `
-        <h1>Booking dashboard</h1>
-        <p id="booking-status" role="status">Loading bookings...</p>
+        <h1>Alle bookings</h1>
+        
+        <input
+        id="booking-search"
+        type="search"
+        placeholder= "Søg efter id, navn, mail eller telefon..."
+        aria-label="Search bookings"
+        >
+        
+        <p id="booking-status" role="status">Loader bookings...</p>
 
         <table hidden>
             <thead>
                 <tr>
-                    <th>Customer</th>
-                    <th>Date</th>
+                    <th>ID</th>
+                    <th>Kundenavn</th>
+                    <th>Dato</th>
                     <th>Email</th>
-                    <th>Phone</th>
-                    <th>Total price</th>
+                    <th>Telefon</th>
+                    <th>Total pris</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -28,7 +37,25 @@ export function createDashboardView() {
     const status = section.querySelector("#booking-status");
     const table = section.querySelector("table");
     const tableBody = section.querySelector("tbody");
+    const searchInput = section.querySelector("#booking-search");
 
+    //SEARCH BAR
+    searchInput.addEventListener("input", () => {
+        const search = searchInput.value.trim().toLowerCase();
+
+        for (const row of tableBody.rows) {
+            const id = row.cells[0].textContent;
+            const name = row.cells[1].textContent;
+            const email = row.cells[3].textContent;
+            const phone = row.cells[4].textContent;
+
+            const bookingText = `${id} ${name} ${email} ${phone}`.toLowerCase();
+
+            row.hidden = !bookingText.includes(search);
+        }
+    });
+
+    //SHOW BOOKINGS
     async function displayBookings() {
         try {
             const bookings = await fetchBookings();
@@ -36,7 +63,7 @@ export function createDashboardView() {
             bookings.sort((a, b) => a.date.localeCompare(b.date));
 
             if (bookings.length === 0) {
-                status.textContent = "No bookings yet.";
+                status.textContent = "Ingen bookinger endnu.";
                 return;
             }
 
@@ -44,6 +71,7 @@ export function createDashboardView() {
                 const row = document.createElement("tr");
 
                 const values = [
+                    booking.id,
                     booking.nameOfCustomer,
                     booking.date,
                     booking.emailOfCustomer,
@@ -63,7 +91,7 @@ export function createDashboardView() {
             status.textContent = "";
             table.hidden = false;
         } catch (error) {
-            status.textContent = "Could not load bookings. Please try again.";
+            status.textContent = "Kan ikke loade bookinger. Prøv venligst igen.";
             console.error(error);
         }
     }

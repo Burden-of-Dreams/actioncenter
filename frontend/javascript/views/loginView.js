@@ -39,7 +39,7 @@ export function createLoginView({ onLogin }) {
         }
 
         button.disabled = true;
-        message.textContent = "Logging in...";
+        message.textContent = "Logger ind...";
 
         try {
             const response = await fetch("/api/user/login", {
@@ -57,12 +57,12 @@ export function createLoginView({ onLogin }) {
                 message.textContent = "";
                 onLogin();
             } else if (response.status === 401) {
-                message.textContent = "Invalid username or password.";
+                message.textContent = "Forkert brugernavn eller kodeord.";
             } else {
-                message.textContent = "Login failed. Please try again.";
+                message.textContent = "Login fejlet. Prøv venligst igen.";
             }
         } catch (error) {
-            message.textContent = "Could not connect to the server.";
+            message.textContent = "Kan ikke forbinde til netværket.";
         } finally {
             button.disabled = false;
         }
