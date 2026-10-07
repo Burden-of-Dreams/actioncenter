@@ -10,7 +10,7 @@ export async function fetchBookings() {
     return response.json();
 }
 
-async function createBooking(booking) {
+export async function createBooking(booking) {
     const response = await fetch(API_BASE + "/bookings",
         {
             method: POST,

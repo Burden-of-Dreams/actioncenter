@@ -2,16 +2,31 @@
 
 import { createLoginView } from "./views/loginView.js";
 import { createDashboardView } from "./views/dashboardView.js";
+import { createBookingView } from "./views/createBookingView.js";
 
 const routes = [
     { path: "/", view: showLogin, title: "Login" },
     { path: "/login", view: showLogin, title: "Login" },
-    { path: "/dashboard", view: createDashboardView, title: "Dashboard" }
+    { path: "/dashboard", view: showDashboard, title: "Dashboard" },
+    { path: "/bookings/new", view: showCreateBooking, title: "Ny booking" }
 ];
 
 function showLogin() {
     return createLoginView({
         onLogin: () => navigateTo("/dashboard")
+    });
+}
+
+function showDashboard() {
+    return createDashboardView({
+        onNewBooking: () => navigateTo("/bookings/new")
+    });
+}
+
+function showCreateBooking() {
+    return createBookingView({
+        onCreated: () => navigateTo("/dashboard"),
+        onCancel: () => navigateTo("/dashboard")
     });
 }
 

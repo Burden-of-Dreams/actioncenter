@@ -1,14 +1,18 @@
 "use strict";
 
-import { fetchBookings } from "../../javaScript/bookingApi.js";
+import { fetchBookings } from "../APIs/bookingApi.js";
 
 
-export function createDashboardView() {
+export function createDashboardView({ onNewBooking }) {
     const section = document.createElement("section");
     section.id = "dashboard-view";
 
     section.innerHTML = `
-        <h1>Alle bookings</h1>
+
+        <div class="view-header">
+            <h1>Alle bookings</h1>
+            <button id="new-booking-button" type="button">+ Ny booking</button>
+        </div>
         
         <input
         id="booking-search"
@@ -38,6 +42,9 @@ export function createDashboardView() {
     const table = section.querySelector("table");
     const tableBody = section.querySelector("tbody");
     const searchInput = section.querySelector("#booking-search");
+    const newBookingButton = section.querySelector("#new-booking-button");
+
+    newBookingButton.addEventListener("click", onNewBooking);
 
     //SEARCH BAR
     searchInput.addEventListener("input", () => {

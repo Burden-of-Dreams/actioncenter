@@ -41,7 +41,7 @@ public class SessionService {
     }
 
     public Session createSession(SessionDTO sessionDTO, Booking booking) {
-        Activity activity = activityService.getEntityById(sessionDTO.activityId());
+        Activity activity = activityService.getActivityById(sessionDTO.activityId());
         List<Equipment> equipment = equipmentService.getEntitiesByIds(sessionDTO.equipmentIds());
 
         Session session = new Session();
