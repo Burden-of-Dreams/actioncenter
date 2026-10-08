@@ -88,35 +88,123 @@ input#booking-search {
     }
 }
 
-    #dashboard-view .view-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
-        margin-bottom: 24px;
-    }
+#dashboard-view .view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
 
-    #dashboard-view .view-header h1 {
-        margin: 0;
-    }
+#dashboard-view .view-header h1 {
+    margin: 0;
+}
 
-    #dashboard-view #new-booking-button {
-        padding: 10px 18px;
-        border: 0;
-        border-radius: 8px;
-        background: #2563eb;
-        color: #ffffff;
-        font: inherit;
-        font-weight: 600;
-        white-space: nowrap;
-        cursor: pointer;
-    }
+#dashboard-view #new-booking-button {
+    padding: 10px 18px;
+    border: 0;
+    border-radius: 8px;
+    background: #2563eb;
+    color: #ffffff;
+    font: inherit;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+}
 
-    #dashboard-view #new-booking-button:hover {
-        background: #1d4ed8;
-    }
+#dashboard-view #new-booking-button:hover {
+    background: #1d4ed8;
+}
 
-    #dashboard-view #new-booking-button:focus-visible {
-        outline: 3px solid #2563eb;
-        outline-offset: 2px;
-    }
+#dashboard-view #new-booking-button:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 2px;
+}
+
+#dashboard-view .booking-eye-button,
+#dashboard-view .booking-details-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #2563eb;
+    cursor: pointer;
+}
+
+#dashboard-view .booking-eye-button:hover,
+#dashboard-view .booking-details-close:hover {
+    background: #eff6ff;
+}
+
+#dashboard-view .booking-eye-button:focus-visible,
+#dashboard-view .booking-details-close:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 2px;
+}
+
+#dashboard-view .booking-details {
+    box-sizing: border-box;
+    width: min(520px, calc(100% - 32px));
+    max-height: calc(100dvh - 32px);
+    padding: 24px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    color: #243247;
+    background: #ffffff;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+}
+
+#dashboard-view .booking-details::backdrop {
+    background: rgba(35, 40, 48, 0.55);
+}
+
+#dashboard-view .booking-details-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+#dashboard-view .booking-details-header h2 {
+    margin: 0;
+    font-size: 22px;
+}
+
+#dashboard-view .booking-details-close {
+    flex-shrink: 0;
+    font-size: 24px;
+}
+
+#dashboard-view .booking-details-fields {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+#dashboard-view .booking-details-fields dt {
+    margin-top: 16px;
+    font-size: 14px;
+    color: #64748b;
+}
+
+#dashboard-view .booking-details-fields dd {
+    margin: 4px 0 0;
+}
+
+#dashboard-view th:nth-child(6),
+#dashboard-view td:nth-child(6) {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.booking-eye-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}

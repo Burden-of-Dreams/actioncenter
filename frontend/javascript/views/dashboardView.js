@@ -32,6 +32,7 @@ export function createDashboardView({ onNewBooking }) {
                     <th>Email</th>
                     <th>Telefon</th>
                     <th>Total pris</th>
+                    <th>Detaljer</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -45,6 +46,44 @@ export function createDashboardView({ onNewBooking }) {
     const newBookingButton = section.querySelector("#new-booking-button");
 
     newBookingButton.addEventListener("click", onNewBooking);
+
+    const dialog = document.createElement("dialog");
+    dialog.className = "booking-details";
+    dialog.setAttribute("aria-labelledby", "booking-details-title");
+    dialog.innerHTML = `
+        <div class="booking-details-header">
+            <h2 id="booking-details-title">Bookingoplysninger</h2>
+            <button type="button" class="booking-details-close" aria-label="Luk bookingoplysninger" autofocus>×</button>
+        </div>
+        <dl class="booking-details-fields"></dl>
+    `;
+    section.appendChild(dialog);
+
+    const details = dialog.querySelector("dl");
+    dialog.querySelector("button").addEventListener("click", () => dialog.close());
+
+    function showBooking(booking) {
+        details.replaceChildren();
+        const fields = [
+            ["Booking-ID", booking.id],
+            ["Kundenavn", booking.nameOfCustomer],
+            ["Dato", booking.date],
+            ["E-mail", booking.emailOfCustomer],
+            ["Telefon", booking.phoneNumber],
+            ["Total pris", booking.totalPrice == null ? null : booking.totalPrice + " kr."],
+            ["Session-ID'er", booking.sessionIds?.join(", ")]
+        ];
+
+        for (const [label, value] of fields) {
+            const term = document.createElement("dt");
+            const description = document.createElement("dd");
+            term.textContent = label;
+            description.textContent = value == null || value === "" ? "—" : value;
+            details.append(term, description);
+        }
+
+        dialog.showModal();
+    }
 
     //SEARCH BAR
     searchInput.addEventListener("input", () => {
@@ -92,6 +131,24 @@ export function createDashboardView({ onNewBooking }) {
                     row.appendChild(cell);
                 }
 
+                const actionCell = document.createElement("td");
+                const viewButton = document.createElement("button");
+
+                viewButton.type = "button";
+                viewButton.className = "booking-eye-button";
+                viewButton.setAttribute("aria-label", "Vis booking " + booking.id);
+                viewButton.title = "Vis booking";
+
+                const eyeIcon = document.createElement("img");
+                eyeIcon.src = "/images/eye.png";
+                eyeIcon.alt = "";
+                eyeIcon.className = "booking-eye-icon";
+
+                viewButton.appendChild(eyeIcon);
+                viewButton.addEventListener("click", () => showBooking(booking));
+
+                actionCell.appendChild(viewButton);
+                row.appendChild(actionCell);
                 tableBody.appendChild(row);
             }
 
