@@ -1,7 +1,7 @@
 :root {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    color: #172c29;
-    background: #f2f5f1;
+    color: #243247;
+    background: #f1f5f9;
     color-scheme: light;
 }
 
@@ -16,7 +16,7 @@ body {
     display: grid;
     place-items: center;
     padding: 32px 20px;
-    background: radial-gradient(ellipse at top left, #dce9df, transparent 65%);
+    background: radial-gradient(ellipse at top left, #e2e8f0, transparent 65%);
 }
 
 #login-view,
@@ -29,15 +29,15 @@ body {
     max-width: 420px;
     padding: 40px;
     background: #fff;
-    border: 1px solid #dce4dc;
-    border-top: 4px solid #28644f;
+    border: 1px solid #e2e8f0;
+    border-top: 4px solid #2563eb;
     border-radius: 16px;
-    box-shadow: 0 16px 48px #172c290d;
+    box-shadow: 0 16px 48px #2432470d;
 }
 
 #login-view h1 {
     margin: 0 0 32px;
-    color: #28644f;
+    color: #2563eb;
     font-size: 0.8rem;
     font-weight: 750;
     letter-spacing: 0.12em;
@@ -67,16 +67,16 @@ body {
     width: 100%;
     min-height: 48px;
     padding: 12px 14px;
-    border: 1px solid #a4b4ac;
+    border: 1px solid #e2e8f0;
     border-radius: 8px;
-    background: #fcfdfb;
-    color: #172c29;
+    background: #f8fafc;
+    color: #243247;
     font: inherit;
 }
 
 #login-form input:focus-visible,
 #login-button:focus-visible {
-    outline: 3px solid #28644f;
+    outline: 3px solid #2563eb;
     outline-offset: 3px;
 }
 
@@ -86,7 +86,7 @@ body {
     padding: 12px 20px;
     border: 0;
     border-radius: 8px;
-    background: #28644f;
+    background: #2563eb;
     color: #fff;
     font: inherit;
     font-weight: 650;
@@ -94,18 +94,18 @@ body {
 }
 
 #login-button:hover:not(:disabled) {
-    background: #1b4b3a;
+    background: #1d4ed8;
 }
 
 #login-button:disabled {
-    background: #52695f;
+    background: #64748b;
     cursor: wait;
 }
 
 #login-message {
     min-height: 1.5em;
     margin: 20px 0 0;
-    color: #4b5e55;
+    color: #64748b;
     font-size: 0.875rem;
     line-height: 1.5;
     overflow-wrap: anywhere;
