@@ -1,7 +1,7 @@
 # Action Center
 Denne repository er et bookingprogram til medarbejdere i et aktivitetscenter. Programmet bruges til at oprette bookinger for kunder, mens medarbejderen taler med dem i telefonen.
 
-# Studieprojekt
+## Studieprojekt
 Dette er et obligatorisk studieprojekt, som er en del af starten af 3. semester. 
 Det er en Full Stack hjemmeside, hvor vi bruger HTML, CSS, JAVASCRIPT til frontend og SPRING BOOT, JAVA, JPA API samt SQL database til backend. 
 
