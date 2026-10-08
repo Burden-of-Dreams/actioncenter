@@ -20,6 +20,11 @@ public class Session {
     private int amountOfCustomers;
 
     @ManyToMany
+    @JoinTable(
+            name = "session_reserved_equipment",
+            joinColumns = @JoinColumn(name = "session_id"),
+            inverseJoinColumns = @JoinColumn(name = "reserved_equipment_id")
+    )
     private List<Equipment> reservedEquipment = new ArrayList<>();
 
     private LocalDate dateOfActivity;
