@@ -7,7 +7,9 @@ import com.banditdev.actioncenter.model.system.Session;
 import com.banditdev.actioncenter.model.system.dto.EmployeeSessionDTO;
 import com.banditdev.actioncenter.model.system.dto.SessionDTO;
 import com.banditdev.actioncenter.repository.SessionRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -41,6 +43,18 @@ public class SessionService {
     }
 
     public Session createSession(SessionDTO sessionDTO, Booking booking) {
+        if (sessionDTO.equipmentIds() != null && !sessionDTO.equipmentIds().isEmpty()) {
+            List<Session> conflicts = sessionRepository.findConflictingSessions(
+                    sessionDTO.equipmentIds(), sessionDTO.dateOfActivity(),
+                    sessionDTO.startOfSession(), sessionDTO.endOfSession());
+
+            if (!conflicts.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "Udstyret er allerede reserveret i det tidsrum.");
+            }
+        }
+
+
         Activity activity = activityService.getActivityById(sessionDTO.activityId());
         List<Equipment> equipment = equipmentService.getEntitiesByIds(sessionDTO.equipmentIds());
 
