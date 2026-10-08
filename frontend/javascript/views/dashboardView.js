@@ -2,8 +2,9 @@
 
 import { fetchBookings } from "../APIs/bookingApi.js";
 
-
+// Opret dashboard
 export function createDashboardView({ onNewBooking }) {
+    // Dashboardets HTML
     const section = document.createElement("section");
     section.id = "dashboard-view";
 
@@ -39,14 +40,17 @@ export function createDashboardView({ onNewBooking }) {
         </table>
     `;
 
+    // Hent dashboardets elementer
     const status = section.querySelector("#booking-status");
     const table = section.querySelector("table");
     const tableBody = section.querySelector("tbody");
     const searchInput = section.querySelector("#booking-search");
     const newBookingButton = section.querySelector("#new-booking-button");
 
+    // Ny booking knap
     newBookingButton.addEventListener("click", onNewBooking);
 
+    // Booking modal
     const dialog = document.createElement("dialog");
     dialog.className = "booking-details";
     dialog.setAttribute("aria-labelledby", "booking-details-title");
@@ -60,10 +64,95 @@ export function createDashboardView({ onNewBooking }) {
     section.appendChild(dialog);
 
     const details = dialog.querySelector("dl");
+
+    // Luk booking modal
     dialog.querySelector("button").addEventListener("click", () => dialog.close());
 
+    // Søg efter bookings
+    searchInput.addEventListener("input", () => {
+        const search = searchInput.value.trim().toLowerCase();
+
+        for (const row of tableBody.rows) {
+            const id = row.cells[0].textContent;
+            const name = row.cells[1].textContent;
+            const email = row.cells[3].textContent;
+            const phone = row.cells[4].textContent;
+
+            const bookingText = `${id} ${name} ${email} ${phone}`.toLowerCase();
+
+            row.hidden = !bookingText.includes(search);
+        }
+    });
+
+    // Hent og vis liste af bookings
+    async function displayBookings() {
+        try {
+            const bookings = await fetchBookings();
+
+            // Sortér bookings efter dato
+            bookings.sort((a, b) => a.date.localeCompare(b.date));
+
+            if (bookings.length === 0) {
+                status.textContent = "Ingen bookinger endnu.";
+                return;
+            }
+
+            // Opret en række for hver booking
+            for (const booking of bookings) {
+                const row = document.createElement("tr");
+
+                // Bookingens oplysninger
+                const values = [
+                    booking.id,
+                    booking.nameOfCustomer,
+                    booking.date,
+                    booking.emailOfCustomer,
+                    booking.phoneNumber,
+                    booking.totalPrice + " kr."
+                ];
+
+                for (const value of values) {
+                    const cell = document.createElement("td");
+                    cell.textContent = value ?? "—";
+                    row.appendChild(cell);
+                }
+
+                // Booking visningsknap
+                const actionCell = document.createElement("td");
+                const viewButton = document.createElement("button");
+
+                viewButton.type = "button";
+                viewButton.className = "booking-eye-button";
+                viewButton.setAttribute("aria-label", "Vis booking " + booking.id);
+                viewButton.title = "Vis booking";
+
+                // Øje ikon
+                const eyeIcon = document.createElement("img");
+                eyeIcon.src = "/images/eye.png";
+                eyeIcon.alt = "";
+                eyeIcon.className = "booking-eye-icon";
+
+                viewButton.appendChild(eyeIcon);
+                viewButton.addEventListener("click", () => showBooking(booking));
+
+                // Tilføj knappen og rækken til tabellen
+                actionCell.appendChild(viewButton);
+                row.appendChild(actionCell);
+                tableBody.appendChild(row);
+            }
+
+            status.textContent = "";
+            table.hidden = false;
+        } catch (error) {
+            status.textContent = "Kan ikke loade bookinger. Prøv venligst igen.";
+            console.error(error);
+        }
+    }
+
+    // Vis oplysninger for den valgte booking
     function showBooking(booking) {
         details.replaceChildren();
+
         const fields = [
             ["Booking-ID", booking.id],
             ["Kundenavn", booking.nameOfCustomer],
@@ -85,82 +174,9 @@ export function createDashboardView({ onNewBooking }) {
         dialog.showModal();
     }
 
-    //SEARCH BAR
-    searchInput.addEventListener("input", () => {
-        const search = searchInput.value.trim().toLowerCase();
-
-        for (const row of tableBody.rows) {
-            const id = row.cells[0].textContent;
-            const name = row.cells[1].textContent;
-            const email = row.cells[3].textContent;
-            const phone = row.cells[4].textContent;
-
-            const bookingText = `${id} ${name} ${email} ${phone}`.toLowerCase();
-
-            row.hidden = !bookingText.includes(search);
-        }
-    });
-
-    //SHOW BOOKINGS
-    async function displayBookings() {
-        try {
-            const bookings = await fetchBookings();
-
-            bookings.sort((a, b) => a.date.localeCompare(b.date));
-
-            if (bookings.length === 0) {
-                status.textContent = "Ingen bookinger endnu.";
-                return;
-            }
-
-            for (const booking of bookings) {
-                const row = document.createElement("tr");
-
-                const values = [
-                    booking.id,
-                    booking.nameOfCustomer,
-                    booking.date,
-                    booking.emailOfCustomer,
-                    booking.phoneNumber,
-                    booking.totalPrice + " kr."
-                ];
-
-                for (const value of values) {
-                    const cell = document.createElement("td");
-                    cell.textContent = value ?? "—";
-                    row.appendChild(cell);
-                }
-
-                const actionCell = document.createElement("td");
-                const viewButton = document.createElement("button");
-
-                viewButton.type = "button";
-                viewButton.className = "booking-eye-button";
-                viewButton.setAttribute("aria-label", "Vis booking " + booking.id);
-                viewButton.title = "Vis booking";
-
-                const eyeIcon = document.createElement("img");
-                eyeIcon.src = "/images/eye.png";
-                eyeIcon.alt = "";
-                eyeIcon.className = "booking-eye-icon";
-
-                viewButton.appendChild(eyeIcon);
-                viewButton.addEventListener("click", () => showBooking(booking));
-
-                actionCell.appendChild(viewButton);
-                row.appendChild(actionCell);
-                tableBody.appendChild(row);
-            }
-
-            status.textContent = "";
-            table.hidden = false;
-        } catch (error) {
-            status.textContent = "Kan ikke loade bookinger. Prøv venligst igen.";
-            console.error(error);
-        }
-    }
-
+    // Indlæs dashboard
     displayBookings();
 
     return section;
 }
+
