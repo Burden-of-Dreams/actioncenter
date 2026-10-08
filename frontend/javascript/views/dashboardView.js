@@ -60,10 +60,13 @@ export function createDashboardView({ onNewBooking }) {
             <button type="button" class="booking-details-close" aria-label="Luk bookingoplysninger" autofocus>×</button>
         </div>
         <dl class="booking-details-fields"></dl>
+        <h3>Sessions</h3>
+        <div class="booking-session-list"></div>
     `;
     section.appendChild(dialog);
 
     const details = dialog.querySelector("dl");
+    const sessionList = dialog.querySelector(".booking-session-list");
 
     // Luk booking modal
     dialog.querySelector("button").addEventListener("click", () => dialog.close());
@@ -159,8 +162,7 @@ export function createDashboardView({ onNewBooking }) {
             ["Dato", booking.date],
             ["E-mail", booking.emailOfCustomer],
             ["Telefon", booking.phoneNumber],
-            ["Total pris", booking.totalPrice == null ? null : booking.totalPrice + " kr."],
-            ["Session-ID'er", booking.sessionIds?.join(", ")]
+            ["Total pris", booking.totalPrice == null ? null : booking.totalPrice + " kr."]
         ];
 
         for (const [label, value] of fields) {
@@ -171,7 +173,75 @@ export function createDashboardView({ onNewBooking }) {
             details.append(term, description);
         }
 
+        showSessions(booking.sessions);
         dialog.showModal();
+    }
+
+    // Liste af bookingens sessions
+    function showSessions(sessions) {
+        sessionList.replaceChildren();
+
+        if (!Array.isArray(sessions) || sessions.length === 0) {
+            const message = document.createElement("p");
+            message.textContent = Array.isArray(sessions)
+                ? "Ingen sessions på denne booking."
+                : "Sessions kunne ikke vises. Tjek at backend er opdateret.";
+            sessionList.appendChild(message);
+            return;
+        }
+
+        sessions.forEach((session, index) => {
+            sessionList.appendChild(createSessionDetails(session, index));
+        });
+    }
+
+    // Session der kan foldes ud
+    function createSessionDetails(session, index) {
+        const item = document.createElement("details");
+        item.className = "booking-session";
+
+        const summary = document.createElement("summary");
+        summary.textContent = `Session ${index + 1} · ${session.activityName ?? "Ukendt aktivitet"}`;
+        item.appendChild(summary);
+
+        const fields = document.createElement("dl");
+        fields.className = "booking-details-fields";
+
+        const values = [
+            ["Dato", session.dateOfActivity],
+            ["Start", session.startOfSession?.slice(0, 5)],
+            ["Slut", session.endOfSession?.slice(0, 5)],
+            ["Antal personer", session.amountOfCustomers]
+        ];
+
+        for (const [label, value] of values) {
+            const term = document.createElement("dt");
+            const description = document.createElement("dd");
+            term.textContent = label;
+            description.textContent = value == null || value === "" ? "—" : value;
+            fields.append(term, description);
+        }
+
+        // Udstyr til sessionen
+        const equipmentTitle = document.createElement("dt");
+        equipmentTitle.textContent = "Udstyr";
+        const equipmentDetails = document.createElement("dd");
+
+        if (session.equipmentNames?.length) {
+            const equipmentList = document.createElement("ul");
+            for (const name of session.equipmentNames) {
+                const equipmentItem = document.createElement("li");
+                equipmentItem.textContent = name;
+                equipmentList.appendChild(equipmentItem);
+            }
+            equipmentDetails.appendChild(equipmentList);
+        } else {
+            equipmentDetails.textContent = "Intet udstyr valgt.";
+        }
+
+        fields.append(equipmentTitle, equipmentDetails);
+        item.appendChild(fields);
+        return item;
     }
 
     // Indlæs dashboard
@@ -179,4 +249,5 @@ export function createDashboardView({ onNewBooking }) {
 
     return section;
 }
+
 

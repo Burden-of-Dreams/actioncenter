@@ -208,3 +208,39 @@ input#booking-search {
     height: 20px;
     object-fit: contain;
 }
+
+/* Sessions i booking modal */
+#dashboard-view .booking-session-list {
+    display: grid;
+    gap: 12px;
+}
+
+#dashboard-view .booking-session {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow-wrap: anywhere;
+}
+
+#dashboard-view .booking-session summary {
+    padding: 14px 16px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+#dashboard-view .booking-session summary:hover {
+    background: #f8fafc;
+}
+
+#dashboard-view .booking-session summary:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 2px;
+}
+
+#dashboard-view .booking-session[open] summary {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+#dashboard-view .booking-session .booking-details-fields {
+    padding: 0 16px 16px;
+}
+
