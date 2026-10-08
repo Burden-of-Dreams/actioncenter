@@ -10,3 +10,18 @@ export async function fetchEmployeeSessions(employeeId) {
     }
     return response.json();
 }
+
+export async function fetchAvailableStartTimes(activityId, date, excludeBookingId = null) {
+    let url = `${API_BASE}/sessions/available-starts?activityId=${activityId}&date=${date}`;
+
+    if (excludeBookingId !== null) {
+        url += `&excludeBookingId=${excludeBookingId}`;
+    }
+
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error("HTTP " + response.status);
+    }
+    return response.json();   // ["08:00", "08:15", ...]
+}
+

@@ -131,6 +131,19 @@ export function createBookingView({ onCreated, onCancel }) {
             activities,
             equipment,
 
+            // Lets a session see the other (unsaved) sessions in this form
+            getOtherSessions: (currentFieldset) => {
+                const otherSessionData = [];
+
+                for (const otherSessionForm of sessionForms) {
+                    if (otherSessionForm.element !== currentFieldset) {
+                        otherSessionData.push(otherSessionForm.getData());
+                    }
+                }
+
+                return otherSessionData;
+            },
+
             onRemove: () => {
                 const index =
                     sessionForms.indexOf(sessionForm);
@@ -200,14 +213,12 @@ export function createBookingView({ onCreated, onCancel }) {
             const bookingRequest =
                 buildBookingRequest();
 
-            // A session cannot end after midnight.
-            // sessionForm.js returns an empty endOfSession
-            // if that would happen.
+            // The start time dropdown only offers valid times,
+            // but a session without a start time can still be empty.
             for (const session of bookingRequest.sessions) {
-                if (!session.endOfSession) {
+                if (!session.startOfSession || !session.endOfSession) {
                     message.textContent =
-                        "En session må ikke slutte efter midnat. " +
-                        "Vælg en tidligere starttid.";
+                        "Vælg en starttid for alle sessions.";
 
                     return;
                 }
@@ -227,7 +238,12 @@ export function createBookingView({ onCreated, onCancel }) {
                 onCreated();
 
             } catch (error) {
-                if (error.status === 400) {
+                if (error.status === 409) {
+                    message.textContent =
+                        "Et tidspunkt er blevet booket i mellemtiden. " +
+                        "Vælg et nyt.";
+
+                } else if (error.status === 400) {
                     message.textContent =
                         "Tjek at alle felter er udfyldt korrekt.";
 

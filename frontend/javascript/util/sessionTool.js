@@ -1,4 +1,5 @@
-import {addMinutes} from "./timeTool.js";
+import { addMinutes, timeToMinutes } from "./timeTool.js";
+import { fetchAvailableStartTimes } from "../APIs/sessionApi.js";
 
 const STATUS_TEXT = {
     READY: "",
@@ -6,7 +7,14 @@ const STATUS_TEXT = {
     UNAVAILABLE: " (ikke tilgængelig)"
 };
 
-export function createSessionForm({ activities, equipment, session = null, onRemove }) {
+export function createSessionForm({
+                                      activities,
+                                      equipment,
+                                      session = null,
+                                      onRemove,
+                                      getOtherSessions = () => [],
+                                      excludeBookingId = null
+                                  }) {
     const fieldset = document.createElement("fieldset");
     fieldset.className = "session";
 
@@ -42,12 +50,9 @@ export function createSessionForm({ activities, equipment, session = null, onRem
 
         <div class="form-field">
             <label>Start
-                <input class="session-start"
-                       type="time"
-                       min="08:00"
-                       max="18:00"
-                       step="900"
-                       required>
+                <select class="session-start" required>
+                    <option value="">Vælg aktivitet og dato først</option>
+                </select>
             </label>
         </div>
 
@@ -72,13 +77,11 @@ export function createSessionForm({ activities, equipment, session = null, onRem
         </button>
     `;
 
-
-
     const activitySelect = fieldset.querySelector(".session-activity");
     const info = fieldset.querySelector(".session-info");
     const customersInput = fieldset.querySelector(".session-customers");
     const dateInput = fieldset.querySelector(".session-date");
-    const startInput = fieldset.querySelector(".session-start");
+    const startInput = fieldset.querySelector(".session-start");   // now a <select>
     const endInput = fieldset.querySelector(".session-end");
     const equipmentBox = fieldset.querySelector(".session-equipment");
     const removeButton = fieldset.querySelector(".remove-session-button");
@@ -112,6 +115,104 @@ export function createSessionForm({ activities, equipment, session = null, onRem
             activity.durationMinutes
         );
     }
+
+    // -------------------------
+    // START TIME DROPDOWN
+    // -------------------------
+
+    function showMessageInStartSelect(messageText) {
+        startInput.replaceChildren();
+
+        const messageOption = document.createElement("option");
+        messageOption.value = "";
+        messageOption.textContent = messageText;
+
+        startInput.appendChild(messageOption);
+    }
+
+    // Sessions that are in the same form but not saved yet
+    // cannot be seen by the server, so we check them here.
+    function isBlockedByOtherSessionInForm(startTime, activity, date) {
+        const newStartMinutes = timeToMinutes(startTime);
+        const newEndMinutes = newStartMinutes + activity.durationMinutes;
+
+        for (const otherSession of getOtherSessions(fieldset)) {
+            const isSameActivityAndDate =
+                otherSession.activityId === activity.id &&
+                otherSession.dateOfActivity === date;
+
+            if (!isSameActivityAndDate ||
+                !otherSession.startOfSession ||
+                !otherSession.endOfSession) {
+                continue;
+            }
+
+            const otherStartMinutes = timeToMinutes(otherSession.startOfSession);
+            const otherEndMinutes = timeToMinutes(otherSession.endOfSession);
+
+            if (newStartMinutes < otherEndMinutes && newEndMinutes > otherStartMinutes) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    async function updateStartTimeOptions() {
+        const activity = findActivity(activitySelect.value);
+        const date = dateInput.value;
+        const previouslySelectedTime = startInput.value;
+
+        if (!activity || !date) {
+            showMessageInStartSelect("Vælg aktivitet og dato først");
+            updateEndTime();
+            return;
+        }
+
+        try {
+            const availableStartTimes =
+                await fetchAvailableStartTimes(activity.id, date, excludeBookingId);
+
+            startInput.replaceChildren();
+
+            const placeholderOption = document.createElement("option");
+            placeholderOption.value = "";
+            placeholderOption.textContent = "Vælg starttid...";
+            startInput.appendChild(placeholderOption);
+
+            let numberOfOptionsAdded = 0;
+
+            for (const startTime of availableStartTimes) {
+                if (isBlockedByOtherSessionInForm(startTime, activity, date)) {
+                    continue;
+                }
+
+                const option = document.createElement("option");
+                option.value = startTime;
+                option.textContent = startTime;
+
+                startInput.appendChild(option);
+                numberOfOptionsAdded++;
+            }
+
+            if (numberOfOptionsAdded === 0) {
+                showMessageInStartSelect("Ingen ledige tider");
+            } else {
+                // Keeps the earlier choice if it is still available
+                startInput.value = previouslySelectedTime;
+            }
+
+        } catch (error) {
+            console.error(error);
+            showMessageInStartSelect("Kunne ikke hente tider");
+        }
+
+        updateEndTime();
+    }
+
+    // -------------------------
+    // EQUIPMENT / ACTIVITY
+    // -------------------------
 
     function updateEquipment(activity) {
         equipmentBox.replaceChildren();
@@ -174,15 +275,18 @@ export function createSessionForm({ activities, equipment, session = null, onRem
         updateEndTime();
     }
 
-    activitySelect.addEventListener(
-        "change",
-        updateActivity
-    );
+    // -------------------------
+    // EVENTS
+    // -------------------------
 
-    startInput.addEventListener(
-        "input",
-        updateEndTime
-    );
+    activitySelect.addEventListener("change", () => {
+        updateActivity();
+        updateStartTimeOptions();
+    });
+
+    dateInput.addEventListener("change", updateStartTimeOptions);
+
+    startInput.addEventListener("change", updateEndTime);
 
     removeButton.addEventListener("click", () => {
         fieldset.remove();
@@ -192,14 +296,12 @@ export function createSessionForm({ activities, equipment, session = null, onRem
         }
     });
 
-
     // If we're editing an existing session,
     // populate the fields.
     if (session) {
         activitySelect.value = session.activityId;
         customersInput.value = session.amountOfCustomers;
         dateInput.value = session.dateOfActivity;
-        startInput.value = session.startOfSession;
 
         updateActivity();
 
@@ -215,7 +317,13 @@ export function createSessionForm({ activities, equipment, session = null, onRem
                 );
         }
 
-        updateEndTime();
+        // The start time option must exist before it can be selected,
+        // so we wait for the dropdown to be built first.
+        updateStartTimeOptions().then(() => {
+            // "09:00:00" -> "09:00"
+            startInput.value = session.startOfSession.substring(0, 5);
+            updateEndTime();
+        });
     }
 
     function getData() {

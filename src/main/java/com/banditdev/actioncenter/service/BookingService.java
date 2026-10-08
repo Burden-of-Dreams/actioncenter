@@ -45,6 +45,32 @@ public class BookingService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error: A booking needs atleast one session");
         }
 
+        List<SessionDTO> requestedSessions = bookingRequest.sessions();
+
+        for (int i = 0; i < requestedSessions.size(); i++) {
+            SessionDTO currentSession = requestedSessions.get(i);
+
+            // Checks against sessions already saved in the database
+            sessionService.assertAvailable(currentSession, null);
+
+            // Checks against the other sessions in this same request
+            for (int j = i + 1; j < requestedSessions.size(); j++) {
+                SessionDTO otherSession = requestedSessions.get(j);
+
+                boolean sameActivityAndDate =
+                        currentSession.activityId().equals(otherSession.activityId())
+                                && currentSession.dateOfActivity().equals(otherSession.dateOfActivity());
+
+                boolean timesOverlap =
+                        currentSession.startOfSession().isBefore(otherSession.endOfSession())
+                                && currentSession.endOfSession().isAfter(otherSession.startOfSession());
+
+                if (sameActivityAndDate && timesOverlap) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "To sessioner i samme booking overlapper.");
+                }
+            }
+        }
+
         Booking booking = new Booking();
         booking.setNameOfCustomer(bookingRequest.nameOfCustomer());
         booking.setPhoneNumber(bookingRequest.phoneNumber());
