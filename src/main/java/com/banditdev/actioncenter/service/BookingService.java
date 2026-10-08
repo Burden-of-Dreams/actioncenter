@@ -5,6 +5,7 @@ import com.banditdev.actioncenter.model.system.Activity;
 import com.banditdev.actioncenter.model.system.Booking;
 import com.banditdev.actioncenter.model.system.Session;
 import com.banditdev.actioncenter.model.system.dto.BookingRequest;
+import com.banditdev.actioncenter.model.system.dto.BookingUpdateRequest;
 import com.banditdev.actioncenter.model.system.dto.BookingResponse;
 import com.banditdev.actioncenter.model.system.dto.SessionDTO;
 import com.banditdev.actioncenter.repository.ActivityRepository;
@@ -89,6 +90,25 @@ public class BookingService {
         return BookingResponse.from(booking);
     }
 
+    // Rediger kundeoplysninger
+    @Transactional
+    public BookingResponse updateBooking(Long id, BookingUpdateRequest request) {
+        Booking booking = bookingRepository.findById(id).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Booking not found"));
+
+        if (request.nameOfCustomer() == null || request.nameOfCustomer().isBlank()
+                || request.phoneNumber() == null
+                || !request.phoneNumber().matches("\\+?[0-9]{1,15}")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name and phone are required");
+        }
+
+        booking.setNameOfCustomer(request.nameOfCustomer().trim());
+        booking.setPhoneNumber(request.phoneNumber());
+        booking.setEmailOfCustomer(request.emailOfCustomer());
+
+        return BookingResponse.from(bookingRepository.save(booking));
+    }
+
     @Transactional
     public void deleteBookingById(Long id) {
         if (bookingRepository.findById(id).isEmpty()) {
@@ -97,3 +117,4 @@ public class BookingService {
         bookingRepository.deleteById(id);
     }
 }
+

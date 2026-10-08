@@ -1,6 +1,6 @@
 "use strict";
 
-import { fetchBookings } from "../APIs/bookingApi.js";
+import { fetchBookings, deleteBooking, updateBooking } from "../APIs/bookingApi.js";
 
 // Opret dashboard
 export function createDashboardView({ onNewBooking }) {
@@ -57,8 +57,33 @@ export function createDashboardView({ onNewBooking }) {
     dialog.innerHTML = `
         <div class="booking-details-header">
             <h2 id="booking-details-title">Bookingoplysninger</h2>
-            <button type="button" class="booking-details-close" aria-label="Luk bookingoplysninger" autofocus>×</button>
+            <div class="booking-details-actions">
+                <button type="button" class="booking-edit-button" aria-label="Rediger booking" title="Rediger booking">
+                    <img src="/images/edit.png" alt="" class="booking-eye-icon">
+                </button>
+                <button type="button" class="booking-delete-button" aria-label="Slet booking" title="Slet booking">
+                    <img src="/images/trash.png" alt="" class="booking-eye-icon">
+                </button>
+                <button type="button" class="booking-details-close" aria-label="Luk bookingoplysninger" autofocus>×</button>
+            </div>
         </div>
+        <p class="booking-action-message" role="status"></p>
+        <form class="booking-edit-form" hidden>
+            <fieldset>
+                <legend>Rediger kundeoplysninger</legend>
+                <label>Kundenavn
+                    <input name="nameOfCustomer" type="text" required>
+                </label>
+                <label>Telefon
+                    <input name="phoneNumber" type="tel" maxlength="15" pattern="^\\+?[0-9]+$" required>
+                </label>
+                <label>E-mail
+                    <input name="emailOfCustomer" type="email">
+                </label>
+                <button type="submit" class="booking-save-button">Gem</button>
+                <button type="button" class="booking-cancel-button">Annuller</button>
+            </fieldset>
+        </form>
         <dl class="booking-details-fields"></dl>
         <h3>Sessions</h3>
         <div class="booking-session-list"></div>
@@ -68,8 +93,116 @@ export function createDashboardView({ onNewBooking }) {
     const details = dialog.querySelector("dl");
     const sessionList = dialog.querySelector(".booking-session-list");
 
-    // Luk booking modal
-    dialog.querySelector("button").addEventListener("click", () => dialog.close());
+    const closeButton = dialog.querySelector(".booking-details-close");
+    const editButton = dialog.querySelector(".booking-edit-button");
+    const deleteButton = dialog.querySelector(".booking-delete-button");
+    const actionMessage = dialog.querySelector(".booking-action-message");
+
+    const editForm = dialog.querySelector(".booking-edit-form");
+    const editFields = editForm.querySelector("fieldset");
+
+    let selectedBooking;
+    let selectedRow;
+    let saving = false;
+
+    // Knapper i booking modal
+    closeButton.addEventListener("click", () => dialog.close());
+    deleteButton.addEventListener("click", removeBooking);
+    editButton.addEventListener("click", editBooking);
+    editForm.addEventListener("submit", saveBooking);
+    editForm.querySelector(".booking-cancel-button").addEventListener("click", cancelEditing);
+
+    dialog.addEventListener("cancel", event => {
+        if (saving) event.preventDefault();
+    });
+
+    // Slet den valgte booking
+    async function removeBooking() {
+        if (!window.confirm("Vil du slette booking " + selectedBooking.id + "?")) return;
+
+        setSaving(true);
+        actionMessage.textContent = "Sletter booking...";
+
+        try {
+            await deleteBooking(selectedBooking.id);
+            selectedRow.remove();
+            dialog.close();
+
+            if (tableBody.rows.length === 0) {
+                table.hidden = true;
+                status.textContent = "Ingen bookinger endnu.";
+            }
+        } catch (error) {
+            actionMessage.textContent = "Booking kunne ikke slettes. Prøv igen.";
+            console.error(error);
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    // Undgå flere klik mens en ændring gemmes
+    function setSaving(value) {
+        saving = value;
+        closeButton.disabled = value;
+        editButton.disabled = value;
+        deleteButton.disabled = value;
+        editFields.disabled = value;
+    }
+
+    // Rediger kundeoplysninger
+    function editBooking() {
+        editForm.elements.nameOfCustomer.value = selectedBooking.nameOfCustomer ?? "";
+        editForm.elements.phoneNumber.value = selectedBooking.phoneNumber ?? "";
+        editForm.elements.emailOfCustomer.value = selectedBooking.emailOfCustomer ?? "";
+        actionMessage.textContent = "";
+        details.hidden = true;
+        editForm.hidden = false;
+        editButton.hidden = true;
+        editForm.elements.nameOfCustomer.focus();
+    }
+
+    // Annuller redigering
+    function cancelEditing() {
+        editForm.hidden = true;
+        details.hidden = false;
+        editButton.hidden = false;
+        actionMessage.textContent = "";
+        editButton.focus();
+    }
+
+    // Gem kundeoplysninger
+    async function saveBooking(event) {
+        event.preventDefault();
+        if (saving) return;
+
+        const changes = {
+            nameOfCustomer: editForm.elements.nameOfCustomer.value.trim(),
+            phoneNumber: editForm.elements.phoneNumber.value.trim(),
+            emailOfCustomer: editForm.elements.emailOfCustomer.value.trim()
+        };
+
+        setSaving(true);
+        actionMessage.textContent = "Gemmer booking...";
+
+        try {
+            const updated = await updateBooking(selectedBooking.id, changes);
+            Object.assign(selectedBooking, updated);
+
+            selectedRow.cells[1].textContent = updated.nameOfCustomer;
+            selectedRow.cells[3].textContent = updated.emailOfCustomer ?? "—";
+            selectedRow.cells[4].textContent = updated.phoneNumber;
+            searchInput.dispatchEvent(new Event("input"));
+
+            showBooking(selectedBooking, selectedRow);
+            actionMessage.textContent = "Booking gemt.";
+        } catch (error) {
+            actionMessage.textContent = "Booking kunne ikke gemmes. Tjek felterne og prøv igen.";
+            console.error(error);
+        } finally {
+            setSaving(false);
+            if (editForm.hidden) editButton.focus();
+        }
+    }
 
     // Søg efter bookings
     searchInput.addEventListener("input", () => {
@@ -136,7 +269,7 @@ export function createDashboardView({ onNewBooking }) {
                 eyeIcon.className = "booking-eye-icon";
 
                 viewButton.appendChild(eyeIcon);
-                viewButton.addEventListener("click", () => showBooking(booking));
+                viewButton.addEventListener("click", () => showBooking(booking, row));
 
                 // Tilføj knappen og rækken til tabellen
                 actionCell.appendChild(viewButton);
@@ -153,7 +286,13 @@ export function createDashboardView({ onNewBooking }) {
     }
 
     // Vis oplysninger for den valgte booking
-    function showBooking(booking) {
+    function showBooking(booking, row) {
+        selectedBooking = booking;
+        selectedRow = row;
+        actionMessage.textContent = "";
+        editForm.hidden = true;
+        details.hidden = false;
+        editButton.hidden = false;
         details.replaceChildren();
 
         const fields = [
@@ -174,7 +313,7 @@ export function createDashboardView({ onNewBooking }) {
         }
 
         showSessions(booking.sessions);
-        dialog.showModal();
+        if (!dialog.open) dialog.showModal();
     }
 
     // Liste af bookingens sessions
@@ -249,5 +388,6 @@ export function createDashboardView({ onNewBooking }) {
 
     return section;
 }
+
 
 

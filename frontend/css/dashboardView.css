@@ -244,3 +244,90 @@ input#booking-search {
     padding: 0 16px 16px;
 }
 
+
+/* Knapper i booking modal */
+#dashboard-view .booking-details-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+#dashboard-view .booking-edit-button,
+#dashboard-view .booking-delete-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+#dashboard-view .booking-edit-button:hover {
+    background: #eff6ff;
+}
+
+#dashboard-view .booking-delete-button:hover {
+    background: #fef2f2;
+}
+
+#dashboard-view .booking-details-actions button:focus-visible,
+#dashboard-view .booking-edit-form button:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 2px;
+}
+
+#dashboard-view .booking-details button:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
+#dashboard-view .booking-action-message:empty {
+    display: none;
+}
+
+/* Rediger booking */
+#dashboard-view .booking-edit-form label {
+    display: grid;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+#dashboard-view .booking-edit-form input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font: inherit;
+}
+
+#dashboard-view .booking-edit-form fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+#dashboard-view .booking-edit-form button {
+    padding: 10px 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font: inherit;
+    cursor: pointer;
+}
+
+#dashboard-view .booking-save-button {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+@media (max-width: 480px) {
+    #dashboard-view .booking-details-header {
+        flex-wrap: wrap;
+    }
+}
+

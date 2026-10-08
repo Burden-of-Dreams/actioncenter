@@ -21,6 +21,32 @@ export async function createBooking(booking) {
         const error = new Error("HTTP " + response.status);
         error.status = response.status;
         throw error;
-        }
+    }
     return await response.json();
 }
+
+// Slet booking
+export async function deleteBooking(bookingId) {
+    const response = await fetch(API_BASE + "/bookings/delete/" + bookingId, {
+        method: "DELETE"
+    });
+
+    if (!response.ok) {
+        throw new Error("HTTP " + response.status);
+    }
+}
+
+// Gem ændringer til booking
+export async function updateBooking(bookingId, booking) {
+    const response = await fetch(API_BASE + "/bookings/" + bookingId, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(booking)
+    });
+
+    if (!response.ok) {
+        throw new Error("HTTP " + response.status);
+    }
+    return response.json();
+}
+

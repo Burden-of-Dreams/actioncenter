@@ -4,6 +4,7 @@ package com.banditdev.actioncenter.controller;
 import com.banditdev.actioncenter.model.system.Booking;
 import com.banditdev.actioncenter.model.system.dto.BookingDTO;
 import com.banditdev.actioncenter.model.system.dto.BookingRequest;
+import com.banditdev.actioncenter.model.system.dto.BookingUpdateRequest;
 import com.banditdev.actioncenter.model.system.dto.BookingResponse;
 import com.banditdev.actioncenter.service.BookingService;
 import org.springframework.http.HttpStatus;
@@ -39,9 +40,18 @@ public class BookingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBooking);
     }
 
+    // Rediger kundeoplysninger
+    @PatchMapping("/{bookingId}")
+    public ResponseEntity<BookingResponse> updateBooking(
+            @PathVariable Long bookingId,
+            @RequestBody BookingUpdateRequest request) {
+        return ResponseEntity.ok(bookingService.updateBooking(bookingId, request));
+    }
+
     @DeleteMapping("/delete/{bookingId}")
     public ResponseEntity<Void> deleteBooking(@PathVariable Long bookingId) {
         bookingService.deleteBookingById(bookingId);
         return ResponseEntity.noContent().build();
     }
 }
+
