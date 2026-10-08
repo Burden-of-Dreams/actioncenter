@@ -3,12 +3,14 @@
 import { createLoginView } from "./views/loginView.js";
 import { createDashboardView } from "./views/dashboardView.js";
 import { createBookingView } from "./views/createBookingView.js";
+import { createScheduleView } from "./views/scheduleView.js";
 
 const routes = [
     { path: "/", view: showLogin, title: "Login" },
     { path: "/login", view: showLogin, title: "Login" },
     { path: "/dashboard", view: showDashboard, title: "Dashboard" },
-    { path: "/bookings/new", view: showCreateBooking, title: "Ny booking" }
+    { path: "/bookings/new", view: showCreateBooking, title: "Ny booking" },
+    { path: "/schedule", view: showSchedule, title: "Vagtplan" }
 ];
 
 function showLogin() {
@@ -42,6 +44,13 @@ export function startRouter() {
     render();
 }
 
+
+function showSchedule() {
+    return createScheduleView({
+        onUnauthorized: () => navigateTo("/login")
+    });
+}
+
 function render() {
     const app = document.getElementById("app");
     const route = routes.find(route => route.path === window.location.pathname);
@@ -55,3 +64,6 @@ function render() {
     app.replaceChildren(route.view());
     document.title = `Actioncenter – ${route.title}`;
 }
+
+
+
