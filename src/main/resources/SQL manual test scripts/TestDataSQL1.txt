@@ -2,18 +2,134 @@ USE adventurexp;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
+
+-- =========================================================
+-- CREATE TABLES
+-- =========================================================
+
+CREATE TABLE IF NOT EXISTS equipment (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    number INT NOT NULL,
+    name VARCHAR(255),
+    status VARCHAR(50)
+);
+
+
+CREATE TABLE IF NOT EXISTS activity (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    description VARCHAR(255),
+    age_limit INT NOT NULL,
+    capacity INT NOT NULL,
+    duration_minutes INT NOT NULL,
+    price_per_activity DOUBLE NOT NULL,
+    price_per_person DOUBLE NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS booking (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name_of_customer VARCHAR(255),
+    phone_number VARCHAR(255),
+    email_of_customer VARCHAR(255),
+    date DATE,
+    total_price DOUBLE NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS session (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+    activity_id BIGINT,
+    amount_of_customers INT NOT NULL,
+
+    date_of_activity DATE,
+    start_of_session TIME,
+    end_of_session TIME,
+
+    booking_id BIGINT,
+
+    FOREIGN KEY (activity_id)
+        REFERENCES activity(id),
+
+    FOREIGN KEY (booking_id)
+        REFERENCES booking(id)
+);
+
+
+-- =========================================================
+-- MANY-TO-MANY TABLES
+-- =========================================================
+
+CREATE TABLE IF NOT EXISTS activity_equipment (
+    activity_id BIGINT NOT NULL,
+    equipment_id BIGINT NOT NULL,
+
+    PRIMARY KEY (activity_id, equipment_id),
+
+    FOREIGN KEY (activity_id)
+        REFERENCES activity(id),
+
+    FOREIGN KEY (equipment_id)
+        REFERENCES equipment(id)
+);
+
+
+CREATE TABLE IF NOT EXISTS activity_employees (
+    activity_id BIGINT NOT NULL,
+    employees_id BIGINT NOT NULL,
+
+    PRIMARY KEY (activity_id, employees_id)
+
+    -- The User table is not included here because
+    -- your User entity was not provided.
+);
+
+
+CREATE TABLE IF NOT EXISTS session_reserved_equipment (
+    session_id BIGINT NOT NULL,
+    reserved_equipment_id BIGINT NOT NULL,
+
+    PRIMARY KEY (session_id, reserved_equipment_id),
+
+    FOREIGN KEY (session_id)
+        REFERENCES session(id),
+
+    FOREIGN KEY (reserved_equipment_id)
+        REFERENCES equipment(id)
+);
+
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+
+-- =========================================================
+-- CLEAR EXISTING DATA
+-- =========================================================
+
+SET FOREIGN_KEY_CHECKS = 0;
+
 TRUNCATE TABLE session_reserved_equipment;
+TRUNCATE TABLE activity_employees;
 TRUNCATE TABLE session;
 TRUNCATE TABLE booking;
 TRUNCATE TABLE activity_equipment;
-TRUNCATE TABLE activity_employees;
 TRUNCATE TABLE activity;
 TRUNCATE TABLE equipment;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
 
-INSERT INTO equipment (id, number, name, status) VALUES
+-- =========================================================
+-- INSERT EQUIPMENT
+-- =========================================================
+
+INSERT INTO equipment (
+    id,
+    number,
+    name,
+    status
+) VALUES
     (1, 1, 'Go-kart 1', 'READY'),
     (2, 2, 'Go-kart 2', 'READY'),
     (3, 3, 'Go-kart 3', 'CHARGING'),
@@ -22,6 +138,10 @@ INSERT INTO equipment (id, number, name, status) VALUES
     (6, 1, 'Sumo suit 1', 'READY'),
     (7, 2, 'Sumo suit 2', 'UNAVAILABLE');
 
+
+-- =========================================================
+-- INSERT ACTIVITIES
+-- =========================================================
 
 INSERT INTO activity (
     id,
@@ -33,12 +153,46 @@ INSERT INTO activity (
     price_per_activity,
     price_per_person
 ) VALUES
-    (1, 'Go-Karting', 'Race on our indoor track.', 12, 8, 60, 500.0, 150.0),
-    (2, 'Paintball', 'Team battle on the outdoor field.', 14, 12, 90, 800.0, 120.0),
-    (3, 'Sumo Wrestling', 'Inflatable sumo suits and a ring.', 8, 6, 45, 300.0, 80.0);
+    (
+        1,
+        'Go-Karting',
+        'Race on our indoor track.',
+        12,
+        8,
+        60,
+        500.0,
+        150.0
+    ),
+    (
+        2,
+        'Paintball',
+        'Team battle on the outdoor field.',
+        14,
+        12,
+        90,
+        800.0,
+        120.0
+    ),
+    (
+        3,
+        'Sumo Wrestling',
+        'Inflatable sumo suits and a ring.',
+        8,
+        6,
+        45,
+        300.0,
+        80.0
+    );
 
 
-INSERT INTO activity_equipment (activity_id, equipment_id) VALUES
+-- =========================================================
+-- ACTIVITY <-> EQUIPMENT
+-- =========================================================
+
+INSERT INTO activity_equipment (
+    activity_id,
+    equipment_id
+) VALUES
     (1, 1),
     (1, 2),
     (1, 3),
