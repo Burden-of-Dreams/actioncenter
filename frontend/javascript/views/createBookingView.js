@@ -46,6 +46,8 @@ export function createBookingView({ onCreated, onCancel }) {
                 name="phoneNumber"
                 type="tel"
                 autocomplete="off"
+                maxlength="15"
+                pattern="^\\+?[0-9]+$"
                 required
             >
         </div>
