@@ -24,4 +24,3 @@ export async function fetchAvailableStartTimes(activityId, date, excludeBookingI
     }
     return response.json();   // ["08:00", "08:15", ...]
 }
-

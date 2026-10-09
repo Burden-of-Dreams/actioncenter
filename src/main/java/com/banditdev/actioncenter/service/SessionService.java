@@ -21,7 +21,6 @@ public class SessionService {
 
     private static final LocalTime OPENING_TIME = LocalTime.of(8, 0);
     private static final LocalTime CLOSING_TIME = LocalTime.of(16, 0);
-    private static final int MINUTES_BETWEEN_START_TIMES = 15;
 
     private final SessionRepository sessionRepository;
     private final ActivityService activityService;
@@ -92,15 +91,22 @@ public class SessionService {
         List<Session> existingSessions = getExistingSessions(activityId, date, excludeBookingId);
 
         List<String> availableStartTimes = new ArrayList<>();
+        int durationMinutes = activity.getDurationMinutes();
+
+        // Protects against an endless loop if an activity has no valid duration
+        if (durationMinutes <= 0) {
+            return availableStartTimes;
+        }
+
         LocalTime possibleStartTime = OPENING_TIME;
 
-        while (!possibleStartTime.plusMinutes(activity.getDurationMinutes()).isAfter(CLOSING_TIME)) {
-            LocalTime possibleEndTime = possibleStartTime.plusMinutes(activity.getDurationMinutes());
+        while (!possibleStartTime.plusMinutes(durationMinutes).isAfter(CLOSING_TIME)) {
+            LocalTime possibleEndTime = possibleStartTime.plusMinutes(durationMinutes);
 
             if (isTimeAvailable(possibleStartTime, possibleEndTime, existingSessions)) {
                 availableStartTimes.add(possibleStartTime.toString());   // "08:00"
             }
-            possibleStartTime = possibleStartTime.plusMinutes(MINUTES_BETWEEN_START_TIMES);
+            possibleStartTime = possibleEndTime;
         }
         return availableStartTimes;
     }
