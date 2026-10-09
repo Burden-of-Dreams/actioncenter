@@ -530,7 +530,8 @@ export function createDashboardView({ onNewBooking }) {
             const [activities, equipment] = await Promise.all([
                 fetchActivities(), fetchEquipment()
             ]);
-            const sessionForm = createSessionForm({ activities, equipment, session });
+            const sessionForm = createSessionForm({
+                activities, equipment, session, excludeBookingId: selectedBooking.id });
             sessionForm.setTitle("Rediger session");
             sessionForm.setRemoveVisible(false);
 

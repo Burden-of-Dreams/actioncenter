@@ -1,3 +1,6 @@
+const API_BASE = "/api";
+
+
 export async function fetchEmployeeSessions(employeeId) {
     const response = await fetch(
         `/api/sessions/employee/${employeeId}`
