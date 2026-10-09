@@ -17,7 +17,7 @@ public class Booking {
     private String phoneNumber;
     private String emailOfCustomer;
 
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Session> sessions = new ArrayList<>();
 
     private LocalDate date; //TODO der bør msåke ikke være en attribute her med date, da den findes fra Session. Så vi bryder normalForm 3 ift. database, da vores data kommer fra anden data. Overvej om den skal slettes.
@@ -87,3 +87,4 @@ public class Booking {
         this.totalPrice = totalPrice;
     }
 }
+

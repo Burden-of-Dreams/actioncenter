@@ -29,7 +29,8 @@ public record BookingResponse(Long id, String nameOfCustomer,
     // Oplysninger til bookingens sessionliste
     public record SessionDetails(Long id, String activityName, int amountOfCustomers,
                                  LocalDate dateOfActivity, LocalTime startOfSession,
-                                 LocalTime endOfSession, List<String> equipmentNames) {
+                                 LocalTime endOfSession, List<String> equipmentNames,
+                                 Long activityId, List<Long> equipmentIds) {
 
         public static SessionDetails from(Session session) {
             List<String> equipmentNames = session.getReservedEquipment().stream()
@@ -43,9 +44,12 @@ public record BookingResponse(Long id, String nameOfCustomer,
                     session.getDateOfActivity(),
                     session.getStartOfSession(),
                     session.getEndOfSession(),
-                    equipmentNames
+                    equipmentNames,
+                    session.getActivityId(),
+                    session.getReservedEquipmentIds()
             );
         }
     }
 }
+
 
