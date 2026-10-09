@@ -44,6 +44,9 @@ export function createSessionForm({ activities, equipment, session = null, onRem
             <label>Start
                 <input class="session-start"
                        type="time"
+                       min="08:00"
+                       max="18:00"
+                       step="900"
                        required>
             </label>
         </div>
