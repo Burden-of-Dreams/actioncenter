@@ -1,6 +1,10 @@
 "use strict";
 
-import { fetchBookings, deleteBooking, updateBooking } from "../APIs/bookingApi.js";
+import { fetchBookings, deleteBooking, updateBooking, updateBookingSession, deleteBookingSession } from "../APIs/bookingApi.js";
+
+import { fetchActivities } from "../APIs/activityApi.js";
+import { fetchEquipment } from "../APIs/equipmentApi.js";
+import { createSessionForm } from "../util/sessionTool.js";
 
 // Opret dashboard
 export function createDashboardView({ onNewBooking }) {
@@ -104,6 +108,7 @@ export function createDashboardView({ onNewBooking }) {
     let selectedBooking;
     let selectedRow;
     let saving = false;
+    let editingSession = false;
 
     // Knapper i booking modal
     closeButton.addEventListener("click", () => dialog.close());
@@ -147,6 +152,12 @@ export function createDashboardView({ onNewBooking }) {
         editButton.disabled = value;
         deleteButton.disabled = value;
         editFields.disabled = value;
+        updateSessionButtons();
+        const sessionEditor = sessionList.querySelector(".session-editor");
+        if (sessionEditor) {
+            sessionEditor.querySelector("fieldset").disabled = value;
+            for (const button of sessionEditor.querySelectorAll("button")) button.disabled = value;
+        }
     }
 
     // Rediger kundeoplysninger
@@ -159,6 +170,7 @@ export function createDashboardView({ onNewBooking }) {
         editForm.hidden = false;
         editButton.hidden = true;
         editForm.elements.nameOfCustomer.focus();
+        updateSessionButtons();
     }
 
     // Annuller redigering
@@ -168,6 +180,7 @@ export function createDashboardView({ onNewBooking }) {
         editButton.hidden = false;
         actionMessage.textContent = "";
         editButton.focus();
+        updateSessionButtons();
     }
 
     // Gem kundeoplysninger
@@ -287,6 +300,7 @@ export function createDashboardView({ onNewBooking }) {
 
     // Vis oplysninger for den valgte booking
     function showBooking(booking, row) {
+        editingSession = false;
         selectedBooking = booking;
         selectedRow = row;
         actionMessage.textContent = "";
@@ -313,6 +327,7 @@ export function createDashboardView({ onNewBooking }) {
         }
 
         showSessions(booking.sessions);
+        updateSessionButtons();
         if (!dialog.open) dialog.showModal();
     }
 
@@ -380,7 +395,148 @@ export function createDashboardView({ onNewBooking }) {
 
         fields.append(equipmentTitle, equipmentDetails);
         item.appendChild(fields);
+
+        // Knapper til sessionen
+        const actions = document.createElement("div");
+        actions.className = "session-actions";
+        const edit = document.createElement("button");
+        edit.type = "button";
+        edit.textContent = "Rediger session";
+        edit.addEventListener("click", () => editSession(session, item, fields, actions));
+
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.textContent = "Slet session";
+        remove.dataset.lastSession = selectedBooking.sessions.length === 1 ? "true" : "false";
+        if (selectedBooking.sessions.length === 1) {
+            remove.title = "Den sidste session kan ikke slettes. Slet hele bookingen i stedet.";
+        }
+        remove.addEventListener("click", () => removeSession(session));
+        actions.append(edit, remove);
+        item.appendChild(actions);
         return item;
+    }
+
+    // Kun én redigering ad gangen
+    function updateSessionButtons() {
+        for (const button of sessionList.querySelectorAll(".session-actions button")) {
+            button.disabled = saving || editingSession || !editForm.hidden
+                || button.dataset.lastSession === "true";
+        }
+        editButton.disabled = saving || editingSession;
+        deleteButton.disabled = saving || editingSession;
+    }
+
+    // Opdater booking, pris og placering i listen
+    function refreshBooking(updated) {
+        Object.assign(selectedBooking, updated);
+        selectedRow.cells[2].textContent = updated.date;
+        selectedRow.cells[5].textContent = updated.totalPrice + " kr.";
+
+        const rows = Array.from(tableBody.rows);
+        rows.sort((a, b) => a.cells[2].textContent.localeCompare(b.cells[2].textContent));
+        for (const row of rows) tableBody.appendChild(row);
+
+        searchInput.dispatchEvent(new Event("input"));
+        showBooking(selectedBooking, selectedRow);
+    }
+
+    // Slet en session
+    async function removeSession(session) {
+        if (saving || editingSession) return;
+        if (!window.confirm("Vil du slette denne session?")) return;
+        setSaving(true);
+        actionMessage.textContent = "Sletter session...";
+
+        try {
+            const updated = await deleteBookingSession(selectedBooking.id, session.id);
+            refreshBooking(updated);
+            actionMessage.textContent = "Session slettet.";
+        } catch (error) {
+            actionMessage.textContent = error.status === 400
+                ? "Den sidste session kan ikke slettes. Slet hele bookingen i stedet."
+                : "Session kunne ikke slettes. Prøv igen.";
+            console.error(error);
+        } finally {
+            setSaving(false);
+            closeButton.focus();
+        }
+    }
+
+    // Rediger session med den eksisterende formular
+    async function editSession(session, item, fields, actions) {
+        if (saving || editingSession) return;
+        editingSession = true;
+        setSaving(true);
+        actionMessage.textContent = "Henter aktiviteter og udstyr...";
+
+        try {
+            const [activities, equipment] = await Promise.all([
+                fetchActivities(), fetchEquipment()
+            ]);
+            const sessionForm = createSessionForm({ activities, equipment, session });
+            sessionForm.setTitle("Rediger session");
+            sessionForm.setRemoveVisible(false);
+
+            const form = document.createElement("form");
+            form.className = "session-editor";
+            const save = document.createElement("button");
+            save.type = "submit";
+            save.textContent = "Gem session";
+            const cancel = document.createElement("button");
+            cancel.type = "button";
+            cancel.textContent = "Annuller";
+
+            form.append(sessionForm.element, save, cancel);
+            fields.hidden = true;
+            actions.hidden = true;
+            item.appendChild(form);
+            item.open = true;
+            actionMessage.textContent = "";
+
+            // Annuller uden at gemme
+            cancel.addEventListener("click", () => {
+                form.remove();
+                fields.hidden = false;
+                actions.hidden = false;
+                editingSession = false;
+                actionMessage.textContent = "";
+                updateSessionButtons();
+                actions.querySelector("button").focus();
+            });
+
+            // Gem sessionen
+            form.addEventListener("submit", async event => {
+                event.preventDefault();
+                if (saving) return;
+                const changes = sessionForm.getData();
+                if (!changes.endOfSession) {
+                    actionMessage.textContent = "Sessionen skal slutte samme dag.";
+                    return;
+                }
+
+                setSaving(true);
+                actionMessage.textContent = "Gemmer session...";
+                try {
+                    const updated = await updateBookingSession(selectedBooking.id, session.id, changes);
+                    refreshBooking(updated);
+                    actionMessage.textContent = "Session gemt.";
+                } catch (error) {
+                    actionMessage.textContent = "Session kunne ikke gemmes. Tjek felterne og prøv igen.";
+                    console.error(error);
+                } finally {
+                    setSaving(false);
+                    if (!editingSession) closeButton.focus();
+                }
+            });
+            sessionForm.element.querySelector("select").focus();
+        } catch (error) {
+            editingSession = false;
+            actionMessage.textContent = "Formularen kunne ikke hentes. Prøv igen.";
+            console.error(error);
+        } finally {
+            setSaving(false);
+        }
     }
 
     // Indlæs dashboard
@@ -388,6 +544,7 @@ export function createDashboardView({ onNewBooking }) {
 
     return section;
 }
+
 
 
 

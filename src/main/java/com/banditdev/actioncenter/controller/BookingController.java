@@ -3,6 +3,7 @@ package com.banditdev.actioncenter.controller;
 import com.banditdev.actioncenter.model.system.dto.BookingRequest;
 import com.banditdev.actioncenter.model.system.dto.BookingUpdateRequest;
 import com.banditdev.actioncenter.model.system.dto.BookingResponse;
+import com.banditdev.actioncenter.model.system.dto.SessionDTO;
 import com.banditdev.actioncenter.service.BookingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,10 +46,26 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.updateBooking(bookingId, request));
     }
 
+    // Rediger en session på bookingen
+    @PutMapping("/{bookingId}/sessions/{sessionId}")
+    public ResponseEntity<BookingResponse> updateSession(
+            @PathVariable Long bookingId, @PathVariable Long sessionId,
+            @RequestBody SessionDTO request) {
+        return ResponseEntity.ok(bookingService.updateSession(bookingId, sessionId, request));
+    }
+
+    // Slet en session fra bookingen
+    @DeleteMapping("/{bookingId}/sessions/{sessionId}")
+    public ResponseEntity<BookingResponse> deleteSession(
+            @PathVariable Long bookingId, @PathVariable Long sessionId) {
+        return ResponseEntity.ok(bookingService.deleteSession(bookingId, sessionId));
+    }
+
     @DeleteMapping("/delete/{bookingId}")
     public ResponseEntity<Void> deleteBooking(@PathVariable Long bookingId) {
         bookingService.deleteBookingById(bookingId);
         return ResponseEntity.noContent().build();
     }
 }
+
 
