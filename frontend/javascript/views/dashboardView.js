@@ -26,6 +26,25 @@ export function createDashboardView({ onNewBooking }) {
         aria-label="Search bookings"
         >
         
+        <div class="booking-toolbar">
+            <label>Vis
+                <select id="booking-period">
+                    <option value="upcoming">Kommende (i dag og frem)</option>
+                    <option value="past">Tidligere</option>
+                    <option value="all">Alle</option>
+                </select>
+            </label>
+            <label>Sortér efter
+                <select id="booking-sort">
+                    <option value="date">Dato</option>
+                    <option value="nameOfCustomer">Kundenavn</option>
+                    <option value="totalPrice">Total pris</option>
+                    <option value="id">ID</option>
+                </select>
+            </label>
+            <button id="booking-sort-direction" type="button" aria-label="Skift sorteringsretning">↑ Stigende</button>
+        </div>
+
         <p id="booking-status" role="status">Loader bookings...</p>
 
         <table hidden>
@@ -50,6 +69,9 @@ export function createDashboardView({ onNewBooking }) {
     const tableBody = section.querySelector("tbody");
     const searchInput = section.querySelector("#booking-search");
     const newBookingButton = section.querySelector("#new-booking-button");
+    const periodSelect = section.querySelector("#booking-period");
+    const sortSelect = section.querySelector("#booking-sort");
+    const sortDirectionButton = section.querySelector("#booking-sort-direction");
 
     // Ny booking knap
     newBookingButton.addEventListener("click", onNewBooking);
@@ -132,11 +154,7 @@ export function createDashboardView({ onNewBooking }) {
             await deleteBooking(selectedBooking.id);
             selectedRow.remove();
             dialog.close();
-
-            if (tableBody.rows.length === 0) {
-                table.hidden = true;
-                status.textContent = "Ingen bookinger endnu.";
-            }
+            applyView();
         } catch (error) {
             actionMessage.textContent = "Booking kunne ikke slettes. Prøv igen.";
             console.error(error);
@@ -204,7 +222,7 @@ export function createDashboardView({ onNewBooking }) {
             selectedRow.cells[1].textContent = updated.nameOfCustomer;
             selectedRow.cells[3].textContent = updated.emailOfCustomer ?? "—";
             selectedRow.cells[4].textContent = updated.phoneNumber;
-            searchInput.dispatchEvent(new Event("input"));
+            applyView();
 
             showBooking(selectedBooking, selectedRow);
             actionMessage.textContent = "Booking gemt.";
@@ -217,29 +235,71 @@ export function createDashboardView({ onNewBooking }) {
         }
     }
 
-    // Søg efter bookings
-    searchInput.addEventListener("input", () => {
+    // Søg, filtrér og sortér ændrer kun visningen
+    searchInput.addEventListener("input", applyView);
+    periodSelect.addEventListener("change", applyView);
+    sortSelect.addEventListener("change", applyView);
+
+    let sortAscending = true;
+    sortDirectionButton.addEventListener("click", () => {
+        sortAscending = !sortAscending;
+        sortDirectionButton.textContent = sortAscending ? "↑ Stigende" : "↓ Faldende";
+        applyView();
+    });
+
+    // Sammenlign to bookinger ud fra den valgte sortering
+    function compareBookings(a, b) {
+        const key = sortSelect.value;
+        const x = a[key] ?? "";
+        const y = b[key] ?? "";
+
+        const result = typeof x === "number" && typeof y === "number"
+            ? x - y
+            : String(x).localeCompare(String(y), "da", { numeric: true });
+
+        return sortAscending ? result : -result;
+    }
+
+    // Er bookingen med i den valgte periode? (datoer er "ÅÅÅÅ-MM-DD", så tekst kan sammenlignes)
+    function matchesPeriod(booking, today) {
+        const date = booking.date ?? "";
+        if (periodSelect.value === "upcoming") return date >= today;
+        if (periodSelect.value === "past") return date < today;
+        return true;
+    }
+
+    // Anvend søgning, periode og sortering på rækkerne i tabellen
+    function applyView() {
+        const today = new Date().toLocaleDateString("sv-SE"); // lokal dato som ÅÅÅÅ-MM-DD
         const search = searchInput.value.trim().toLowerCase();
 
-        for (const row of tableBody.rows) {
-            const id = row.cells[0].textContent;
-            const name = row.cells[1].textContent;
-            const email = row.cells[3].textContent;
-            const phone = row.cells[4].textContent;
+        const rows = Array.from(tableBody.rows);
+        rows.sort((a, b) => compareBookings(a.booking, b.booking));
 
-            const bookingText = `${id} ${name} ${email} ${phone}`.toLowerCase();
+        let visibleRows = 0;
+        for (const row of rows) {
+            const booking = row.booking;
+            const bookingText = `${booking.id} ${booking.nameOfCustomer ?? ""} ${booking.emailOfCustomer ?? ""} ${booking.phoneNumber ?? ""}`.toLowerCase();
 
-            row.hidden = !bookingText.includes(search);
+            row.hidden = !(matchesPeriod(booking, today) && bookingText.includes(search));
+            if (!row.hidden) visibleRows++;
+            tableBody.appendChild(row); // flytter rækken i den sorterede rækkefølge
         }
-    });
+
+        table.hidden = visibleRows === 0;
+        if (rows.length === 0) {
+            status.textContent = "Ingen bookinger endnu.";
+        } else if (visibleRows === 0) {
+            status.textContent = "Ingen bookinger matcher visningen.";
+        } else {
+            status.textContent = "";
+        }
+    }
 
     // Hent og vis liste af bookings
     async function displayBookings() {
         try {
             const bookings = await fetchBookings();
-
-            // Sortér bookings efter dato
-            bookings.sort((a, b) => a.date.localeCompare(b.date));
 
             if (bookings.length === 0) {
                 status.textContent = "Ingen bookinger endnu.";
@@ -249,6 +309,7 @@ export function createDashboardView({ onNewBooking }) {
             // Opret en række for hver booking
             for (const booking of bookings) {
                 const row = document.createElement("tr");
+                row.booking = booking; // bruges af søgning, filter og sortering
 
                 // Bookingens oplysninger
                 const values = [
@@ -290,8 +351,7 @@ export function createDashboardView({ onNewBooking }) {
                 tableBody.appendChild(row);
             }
 
-            status.textContent = "";
-            table.hidden = false;
+            applyView();
         } catch (error) {
             status.textContent = "Kan ikke loade bookinger. Prøv venligst igen.";
             console.error(error);
@@ -433,11 +493,7 @@ export function createDashboardView({ onNewBooking }) {
         selectedRow.cells[2].textContent = updated.date;
         selectedRow.cells[5].textContent = updated.totalPrice + " kr.";
 
-        const rows = Array.from(tableBody.rows);
-        rows.sort((a, b) => a.cells[2].textContent.localeCompare(b.cells[2].textContent));
-        for (const row of rows) tableBody.appendChild(row);
-
-        searchInput.dispatchEvent(new Event("input"));
+        applyView();
         showBooking(selectedBooking, selectedRow);
     }
 
@@ -544,7 +600,3 @@ export function createDashboardView({ onNewBooking }) {
 
     return section;
 }
-
-
-
-
